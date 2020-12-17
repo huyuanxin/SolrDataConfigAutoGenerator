@@ -1,0 +1,15 @@
+<dataConfig xmlns:th="http://www.thymeleaf.org">
+    <dataSource th:each="dataSource:${dataSourceList}" th:name="${dataSource.dataConfigName}" th:driver="${dataSource.dataConfigDriver}" th:user="${dataSource.dataConfigUser}" th:password="${dataSource.dataConfigPassword}" th:url="${dataSource.dataConfigUrl}">
+    </dataSource>
+        <document>
+            <entity th:each="entity:${entityList}"
+                    th:name="${entity.entityName}"
+                    th:query="${entity.querySqlCommand}"
+                    th:deltaImportQuery="${entity.deltaImportQueryCommand}"
+                    th:deltaQuery="${entity.deltaQueryCommand}"
+                    th:dataSource="${entity.entityDataSource}">
+                <field th:each="field:${entity.fieldList}" th:column="${field.columnName}" th:name="${field.fieldName}" >
+                </field>
+            </entity>
+        </document>
+</dataConfig>
