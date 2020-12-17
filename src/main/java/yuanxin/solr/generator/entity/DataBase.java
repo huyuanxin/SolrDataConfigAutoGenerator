@@ -20,23 +20,23 @@ import java.util.List;
 @NoArgsConstructor
 public class DataBase {
     @ApiModelProperty("数据库的名字")
-    String dataBaseName;
+    public String dataBaseName;
 
     @ApiModelProperty("数据库的url")
-    String dataBaseUrl;
+    public String dataBaseUrl;
 
     @ApiModelProperty("数据库的用户名")
-    String dataBaseUserName;
+    public String dataBaseUserName;
 
     @ApiModelProperty("数据库的密码")
-    String dataBasePassword;
+    public String dataBasePassword;
 
     @ApiModelProperty("数据库的驱动名")
-    String driverName;
+    public String driverName;
 
     @ApiModelProperty("表名")
-    String tableName;
+    public String tableName;
 
     @ApiModelProperty("列名集合")
-    List<String> columnNameList;
+    public List<String> columnNameList;
 }
