@@ -18,6 +18,9 @@ public class GeneratorServiceImpl implements GeneratorService {
     final String DATABASE_TYPE_DATETIME = "datetime";
     final String DATABASE_TYPE_TIME = "time";
 
+    final String DynamicFIELD_PDATE_TYPE_NAME = "yuanxin_pdate_";
+    final String DynamicFIELD_STRING_TYPE_NAME = "yuanxin_string_";
+
     /**
      * 生成 {@link DataSource}
      *
@@ -131,11 +134,11 @@ public class GeneratorServiceImpl implements GeneratorService {
             switch (columnName.getColumnName()) {
                 case DATABASE_TYPE_DATETIME:
                 case DATABASE_TYPE_TIME: {
-                    fieldList.add(new Field(columnName.getColumnName(), "yuanxin_pdate_" + columnName.getColumnName()));
+                    fieldList.add(new Field(columnName.getColumnName(), DynamicFIELD_PDATE_TYPE_NAME + columnName.getColumnName()));
                     break;
                 }
                 default: {
-                    fieldList.add(new Field(columnName.getColumnName(), "yuanxin_string_" + columnName.getColumnName()));
+                    fieldList.add(new Field(columnName.getColumnName(), DynamicFIELD_STRING_TYPE_NAME + columnName.getColumnName()));
                     break;
                 }
             }
