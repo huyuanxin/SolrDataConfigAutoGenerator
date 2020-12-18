@@ -3,10 +3,7 @@ package yuanxin.solr.generator.service;
 import org.springframework.stereotype.Service;
 import yuanxin.solr.generator.api.GeneratorService;
 import yuanxin.solr.generator.dto.InputDTO;
-import yuanxin.solr.generator.entity.DataBase;
-import yuanxin.solr.generator.entity.DataSource;
-import yuanxin.solr.generator.entity.Entity;
-import yuanxin.solr.generator.entity.Field;
+import yuanxin.solr.generator.entity.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +56,8 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @return 转换的 {@link Entity}
      */
     private Entity dataBaseToEntity(DataBase dataBase) {
-        List<String> columnNameList = dataBase.getColumnNameList();
-        List<Field> fieldList = columnNameListToField(columnNameList);
+        List<ColumnNameInfo> columnNameInfoList = dataBase.getColumnNameInfoList();
+        List<Field> fieldList = columnNameListToField(columnNameInfoList);
         return new Entity(dataBase.getTableName(),
                 dataBase.getDataBaseName(),
                 generatorQuerySqlCommand(dataBase),
@@ -97,12 +94,21 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @return 生成的sql语句 {@link String}
      */
     private String generatorQuerySqlCommand(DataBase dataBase) {
-        List<String> columnNameList = dataBase.getColumnNameList();
+        List<ColumnNameInfo> columnNameInfoList = dataBase.getColumnNameInfoList();
+        List<String> columnNameList = new ArrayList<>();
+        for (ColumnNameInfo columnInfoName : columnNameInfoList
+        ) {
+            if (!"".equals(columnInfoName.getColumnName())) {
+                columnNameList.add(columnInfoName.getColumnName());
+            }
+        }
+        // 此处为了避免传入的数据有id这个字段
+        columnNameList.removeIf("id"::equals);
         StringBuilder sql = new StringBuilder();
         // 构造Query
         sql.append("Select CONCAT('tableName+',id) as id,");
         int size = columnNameList.size() - 1;
-        for (int i = 1; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             sql.append("`").append(columnNameList.get(i)).append("`,");
         }
         sql.append("`").append(columnNameList.get(size)).append("` ").append("From ").append(dataBase.getTableName());
@@ -112,14 +118,24 @@ public class GeneratorServiceImpl implements GeneratorService {
     /**
      * 把列名转换成{@link Field}
      *
-     * @param columnNameList 列名列 {@link List<String>}
+     * @param columnNameInfoList 列名列 {@link List<ColumnNameInfo>}
      * @return 列名生成的 {@link List<Field>}
      */
-    private List<Field> columnNameListToField(List<String> columnNameList) {
+    private List<Field> columnNameListToField(List<ColumnNameInfo> columnNameInfoList) {
         List<Field> fieldList = new ArrayList<>();
-        for (String columnName : columnNameList
+        for (ColumnNameInfo columnName : columnNameInfoList
         ) {
-            fieldList.add(new Field(columnName, columnName));
+            switch (columnName.getColumnName()) {
+                case "datetime":
+                case "time": {
+                    fieldList.add(new Field(columnName.getColumnName(), "yuanxin_pdate_" + columnName.getColumnName()));
+                    break;
+                }
+                default: {
+                    fieldList.add(new Field(columnName.getColumnName(), "yuanxin_string_" + columnName.getColumnName()));
+                    break;
+                }
+            }
         }
         return fieldList;
     }

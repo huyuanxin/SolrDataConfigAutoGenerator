@@ -1,6 +1,5 @@
 package yuanxin.solr.generator.entity;
 
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -38,5 +37,5 @@ public class DataBase {
     public String tableName;
 
     @ApiModelProperty("列名集合")
-    public List<String> columnNameList;
+    public List<ColumnNameInfo> columnNameInfoList;
 }
