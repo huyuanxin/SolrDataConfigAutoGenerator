@@ -129,6 +129,8 @@ public class GeneratorServiceImpl implements GeneratorService {
      */
     private List<Field> columnNameListToField(List<ColumnNameInfo> columnNameInfoList) {
         List<Field> fieldList = new ArrayList<>();
+        columnNameInfoList.removeIf(it -> "id".equals(it.getColumnName()));
+        fieldList.add(new Field("id", "id"));
         for (ColumnNameInfo columnName : columnNameInfoList
         ) {
             switch (columnName.getColumnName()) {
@@ -141,6 +143,7 @@ public class GeneratorServiceImpl implements GeneratorService {
                     fieldList.add(new Field(columnName.getColumnName(), DynamicFIELD_STRING_TYPE_NAME + columnName.getColumnName()));
                     break;
                 }
+
             }
         }
         return fieldList;
