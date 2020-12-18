@@ -15,6 +15,9 @@ import java.util.List;
  */
 @Service("GeneratorService")
 public class GeneratorServiceImpl implements GeneratorService {
+    final String DATABASE_TYPE_DATETIME = "datetime";
+    final String DATABASE_TYPE_TIME = "time";
+
     /**
      * 生成 {@link DataSource}
      *
@@ -126,8 +129,8 @@ public class GeneratorServiceImpl implements GeneratorService {
         for (ColumnNameInfo columnName : columnNameInfoList
         ) {
             switch (columnName.getColumnName()) {
-                case "datetime":
-                case "time": {
+                case DATABASE_TYPE_DATETIME:
+                case DATABASE_TYPE_TIME: {
                     fieldList.add(new Field(columnName.getColumnName(), "yuanxin_pdate_" + columnName.getColumnName()));
                     break;
                 }
