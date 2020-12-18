@@ -25,5 +25,6 @@ public interface ThymeleafService {
      * @param inputDTO 输入的参数 {@link InputDTO}
      * @return 一些生成信息 {@link String}
      */
+    @Deprecated
     String generatorXmlFileOneByOne(InputDTO inputDTO);
 }
