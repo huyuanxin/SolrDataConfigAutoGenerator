@@ -1,4 +1,4 @@
-package yuanxin.solr.generator.entity;
+package yuanxin.solr.generator.entity.output;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel(value = "ColumnNameInfo", description = "数据库列的信息")
-public class ColumnNameInfo {
+public class ColumnNameInfoForOutput {
     /**
      * 列名 {@link String}
      */
@@ -29,4 +29,7 @@ public class ColumnNameInfo {
      */
     @ApiModelProperty("列的描述")
     String columnInfo;
+
+    @ApiModelProperty("是否已经构建")
+    Boolean built;
 }

@@ -19,12 +19,4 @@ public interface ThymeleafService {
      */
     String generatorXmlFile(InputDTO inputDTO);
 
-    /**
-     * 一个一个生成需要的xml
-     *
-     * @param inputDTO 输入的参数 {@link InputDTO}
-     * @return 一些生成信息 {@link String}
-     */
-    @Deprecated
-    String generatorXmlFileOneByOne(InputDTO inputDTO);
 }

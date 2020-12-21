@@ -2,8 +2,8 @@ package yuanxin.solr.generator.api;
 
 import org.springframework.stereotype.Service;
 import yuanxin.solr.generator.dto.InputDTO;
-import yuanxin.solr.generator.entity.DataSource;
-import yuanxin.solr.generator.entity.Entity;
+import yuanxin.solr.generator.entity.solr.DataSource;
+import yuanxin.solr.generator.entity.solr.Entity;
 
 import java.util.List;
 

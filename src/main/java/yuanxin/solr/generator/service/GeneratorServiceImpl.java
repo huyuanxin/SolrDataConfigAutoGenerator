@@ -1,9 +1,18 @@
 package yuanxin.solr.generator.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import yuanxin.solr.generator.api.GeneratorService;
+import yuanxin.solr.generator.dao.SolrTableMapper;
 import yuanxin.solr.generator.dto.InputDTO;
-import yuanxin.solr.generator.entity.*;
+import yuanxin.solr.generator.entity.input.BuiltDataBase;
+import yuanxin.solr.generator.entity.input.ColumnNameInfoForInput;
+import yuanxin.solr.generator.entity.input.DataBase;
+import yuanxin.solr.generator.entity.solr.DataSource;
+import yuanxin.solr.generator.entity.solr.Entity;
+import yuanxin.solr.generator.entity.solr.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +23,32 @@ import java.util.List;
  * @author huyuanxin
  */
 @Service("GeneratorService")
+@PropertySource(value = {"classpath:/application.properties"})
 public class GeneratorServiceImpl implements GeneratorService {
+    @Value("${spring.datasource.driver-class-name}")
+    public String dataConfigDriver;
+
+    @Value("${spring.datasource.url}")
+    public String dataConfigUrl;
+
+    @Value("${spring.datasource.username}")
+    public String dataConfigUser;
+
+    @Value("${spring.datasource.password}")
+    public String dataConfigPassword;
+
+    final SolrTableMapper solrTableMapper;
+
     final String DATABASE_TYPE_DATETIME = "datetime";
     final String DATABASE_TYPE_TIME = "time";
 
     final String DynamicFIELD_PDATE_TYPE_NAME = "yuanxin_pdate_";
     final String DynamicFIELD_STRING_TYPE_NAME = "yuanxin_string_";
+
+    @Autowired
+    public GeneratorServiceImpl(SolrTableMapper solrTableMapper) {
+        this.solrTableMapper = solrTableMapper;
+    }
 
     /**
      * 生成 {@link DataSource}
@@ -29,11 +58,18 @@ public class GeneratorServiceImpl implements GeneratorService {
      */
     @Override
     public List<DataSource> generatorDataSource(InputDTO inputDTO) {
+        List<BuiltDataBase> builtDataBaseList = inputDTO.getBuiltDataBaseInfo();
         List<DataBase> dataBaseList = inputDTO.getDataBaseList();
         List<DataSource> dataSourceList = new ArrayList<>();
         for (DataBase dataBase : dataBaseList
         ) {
-            dataSourceList.add(dataSourceToDataSource(dataBase));
+            DataSource dataSource = new DataSource(dataBase.getDataBaseName(), dataConfigDriver, dataConfigUrl, dataConfigUser, dataConfigPassword);
+            dataSourceList.add(dataSource);
+        }
+        for (BuiltDataBase buildDataBase : builtDataBaseList
+        ) {
+            DataSource dataSource = new DataSource(buildDataBase.getDataBaseName(), dataConfigDriver, dataConfigUrl, dataConfigUser, dataConfigPassword);
+            dataSourceList.add(dataSource);
         }
         return dataSourceList;
     }
@@ -47,6 +83,28 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public List<Entity> generatorEntity(InputDTO inputDTO) {
         List<DataBase> dataBaseList = inputDTO.getDataBaseList();
+        List<BuiltDataBase> builtDataBaseList = inputDTO.getBuiltDataBaseInfo();
+
+        for (BuiltDataBase buildDataBase : builtDataBaseList
+        ) {
+            // 表内查询已构建的信息,并加入到生成队列中
+            List<ColumnNameInfoForInput> columnNameInfoForInputList = solrTableMapper.getBuiltTableInfoForInput(buildDataBase.getDataBaseName(), buildDataBase.getTableName());
+            if (columnNameInfoForInputList.size() > 0) {
+                dataBaseList.add(new DataBase(
+                                buildDataBase.getDataBaseName(),
+                                buildDataBase.getTableName(),
+                                solrTableMapper.getBuiltTableInfoForInput(
+                                        buildDataBase.getDataBaseName(),
+                                        buildDataBase.getTableName()
+                                )
+                        )
+                );
+            }
+        }
+        // 记录已构建的列和更新经构建的表
+        updateBuiltDataBaseInfo(dataBaseList);
+        updateTableInfo(dataBaseList);
+        // 构建列
         List<Entity> entityList = new ArrayList<>();
         for (DataBase dataBase : dataBaseList
         ) {
@@ -62,8 +120,8 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @return 转换的 {@link Entity}
      */
     private Entity dataBaseToEntity(DataBase dataBase) {
-        List<ColumnNameInfo> columnNameInfoList = dataBase.getColumnNameInfoList();
-        List<Field> fieldList = columnNameListToField(columnNameInfoList);
+        List<ColumnNameInfoForInput> columnNameInfoForInputList = dataBase.getColumnNameInfoForInputList();
+        List<Field> fieldList = columnNameListToField(columnNameInfoForInputList);
         return new Entity(dataBase.getTableName(),
                 dataBase.getDataBaseName(),
                 generatorQuerySqlCommand(dataBase),
@@ -100,9 +158,9 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @return 生成的sql语句 {@link String}
      */
     private String generatorQuerySqlCommand(DataBase dataBase) {
-        List<ColumnNameInfo> columnNameInfoList = dataBase.getColumnNameInfoList();
+        List<ColumnNameInfoForInput> columnNameInfoForInputList = dataBase.getColumnNameInfoForInputList();
         List<String> columnNameList = new ArrayList<>();
-        for (ColumnNameInfo columnInfoName : columnNameInfoList
+        for (ColumnNameInfoForInput columnInfoName : columnNameInfoForInputList
         ) {
             if (!"".equals(columnInfoName.getColumnName())) {
                 columnNameList.add(columnInfoName.getColumnName());
@@ -124,14 +182,14 @@ public class GeneratorServiceImpl implements GeneratorService {
     /**
      * 把列名转换成{@link Field}
      *
-     * @param columnNameInfoList 列名列 {@link List<ColumnNameInfo>}
+     * @param columnNameInfoForInputList 列名列 {@link List<ColumnNameInfoForInput>}
      * @return 列名生成的 {@link List<Field>}
      */
-    private List<Field> columnNameListToField(List<ColumnNameInfo> columnNameInfoList) {
+    private List<Field> columnNameListToField(List<ColumnNameInfoForInput> columnNameInfoForInputList) {
         List<Field> fieldList = new ArrayList<>();
-        columnNameInfoList.removeIf(it -> "id".equals(it.getColumnName()));
+        columnNameInfoForInputList.removeIf(it -> "id".equals(it.getColumnName()));
         fieldList.add(new Field("id", "id"));
-        for (ColumnNameInfo columnName : columnNameInfoList
+        for (ColumnNameInfoForInput columnName : columnNameInfoForInputList
         ) {
             switch (columnName.getColumnName()) {
                 case DATABASE_TYPE_DATETIME:
@@ -143,24 +201,57 @@ public class GeneratorServiceImpl implements GeneratorService {
                     fieldList.add(new Field(columnName.getColumnName(), DynamicFIELD_STRING_TYPE_NAME + columnName.getColumnName()));
                     break;
                 }
-
             }
         }
         return fieldList;
     }
 
     /**
-     * 把DataBase转换为 {@link DataBase}
-     *
-     * @param dataBase 需要转换为{@link DataSource}的 {@link DataBase}
-     * @return 转换的 {@link DataSource}
+     * 清空BuildTableInfo
      */
-    private DataSource dataSourceToDataSource(DataBase dataBase) {
-        return new DataSource(
-                dataBase.getDataBaseName(),
-                dataBase.getDriverName(),
-                dataBase.getDataBaseUrl(),
-                dataBase.getDataBaseUserName(),
-                dataBase.getDataBasePassword());
+    private void clearBuiltDataBaseInfo() {
+        solrTableMapper.clearBuiltDataBaseInfo();
+    }
+
+    /**
+     * 更新BuildTableInfo
+     *
+     * @param dataBaseList 更新的队列 {@link List<DataBase>}
+     */
+    private void updateBuiltDataBaseInfo(List<DataBase> dataBaseList) {
+        clearBuiltDataBaseInfo();
+        for (DataBase dataBase : dataBaseList
+        ) {
+            List<ColumnNameInfoForInput> columnInfoList = dataBase.getColumnNameInfoForInputList();
+            for (ColumnNameInfoForInput columnInfo : columnInfoList
+            ) {
+                solrTableMapper.insertToBuildTableInfo(
+                        dataBase.getDataBaseName(),
+                        dataBase.getTableName(),
+                        columnInfo.getColumnName(),
+                        columnInfo.getColumnType(),
+                        columnInfo.getColumnInfo());
+            }
+        }
+    }
+
+    /**
+     * 初始化TableInfo
+     */
+    private void initTableInfo() {
+        solrTableMapper.initTableInfo();
+    }
+
+    /**
+     * 更新已构建的到TableInfo
+     *
+     * @param dataBaseList 数据库队列 {@link List<DataBase>}
+     */
+    private void updateTableInfo(List<DataBase> dataBaseList) {
+        initTableInfo();
+        for (DataBase dataBase : dataBaseList
+        ) {
+            solrTableMapper.updateTableInfo(dataBase.getDataBaseName(), dataBase.getTableName(), true);
+        }
     }
 }

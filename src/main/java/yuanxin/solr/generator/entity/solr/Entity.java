@@ -1,4 +1,4 @@
-package yuanxin.solr.generator.entity;
+package yuanxin.solr.generator.entity.solr;
 
 import lombok.Data;
 

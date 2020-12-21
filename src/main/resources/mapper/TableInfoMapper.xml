@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="yuanxin.solr.generator.dao.SolrTableMapper">
+    <resultMap type="yuanxin.solr.generator.po.TableInfo" id="tableInfo">
+        <!-- 用id属性来映射主键字段 -->
+        <id property="id" column="id"/>
+        <!-- 用result属性来映射非主键字段 -->
+        <result property="dataBaseName" column="database_name"/>
+        <result property="tableName" column="table_name"/>
+        <result property="build" column="build"/>
+    </resultMap>
+    <insert id="insertToBuildTableInfo">
+        insert into built_table_info (`database_name`, `table_name`, `column_name`, `column_type`, `column_info`)
+        values (#{databaseName}, #{tableName}, #{columnName}, #{columnType}, #{columnInfo})
+    </insert>
+
+    <update id="updateTableInfo">
+        update table_info
+        set build = #{status}
+        where database_name = #{dataBaseName}
+          and table_name = #{tableName}
+    </update>
+    <update id="initTableInfo">
+        update table_info
+        set build = false
+        where id > 0
+    </update>
+    <delete id="clearBuiltDataBaseInfo">
+        DELETE
+        from built_table_info
+        where id > 0
+    </delete>
+
+    <select id="getBuildTableInfoWithBuild" resultType="yuanxin.solr.generator.po.TableInfo" resultMap="tableInfo">
+        Select id, database_name, table_name, build
+        from table_info
+        where build = #{build}
+    </select>
+    <select id="getTableColumnInfo" resultType="yuanxin.solr.generator.entity.output.ColumnNameInfoForOutput"
+            parameterType="string">
+        SELECT COLUMN_NAME as columnName, DATA_TYPE as columnType, COLUMN_COMMENT as columnInfo
+        FROM information_schema.`COLUMNS`
+        where TABLE_SCHEMA = #{databaseName}
+          and TABLE_NAME = #{tableName}
+    </select>
+    <select id="getBuiltTableInfoForOutput" resultType="yuanxin.solr.generator.entity.output.ColumnNameInfoForOutput">
+        SELECT column_name as columnName, column_type as columnType, column_info as columnInfo
+        FROM `built_table_info`
+        where database_name = #{databaseName}
+          and table_name = #{tableName}
+    </select>
+    <select id="getBuiltTableInfoForInput"
+            resultType="yuanxin.solr.generator.entity.input.ColumnNameInfoForInput">
+        SELECT column_name as columnName, column_type as columnType, column_info as columnInfo
+        FROM `built_table_info`
+        where database_name = #{databaseName}
+          and table_name = #{tableName}
+    </select>
+
+</mapper>

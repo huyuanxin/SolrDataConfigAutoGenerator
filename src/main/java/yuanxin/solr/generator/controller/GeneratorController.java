@@ -30,11 +30,4 @@ public class GeneratorController {
             @RequestBody InputDTO inputDTO) {
         return thymeleafService.generatorXmlFile(inputDTO);
     }
-
-    @ApiOperation(value = "一个一个的生成data-config.xml", response = String.class)
-    @PostMapping(value = "/generatorOneByOne")
-    public String generatorXmlOneByOne(
-            @RequestBody InputDTO inputDTO) {
-        return thymeleafService.generatorXmlFileOneByOne(inputDTO);
-    }
 }

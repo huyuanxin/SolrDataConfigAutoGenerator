@@ -1,8 +1,10 @@
-package yuanxin.solr.generator.entity;
-
+package yuanxin.solr.generator.entity.solr;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * 对应data-config内的<dataSource></dataSource>
@@ -11,6 +13,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class DataSource {
     /**
      * dataSource的name属性 {@link String}
@@ -36,5 +39,4 @@ public class DataSource {
      * dataSource的password属性 {@link String}
      */
     public String dataConfigPassword;
-
 }
