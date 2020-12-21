@@ -3,8 +3,6 @@ package yuanxin.solr.generator.entity.solr;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 
 /**
  * 对应data-config内的<dataSource></dataSource>
