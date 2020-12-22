@@ -55,7 +55,8 @@ public class ThymeleafServiceImpl implements ThymeleafService {
     private boolean generator(InputDTO inputDTO) {
         try {
             Context context = new Context();
-            FileWriter writer = newFileWriter(DATA_CONFIG_DEFAULT_NAME);
+            String fileLocation=inputDTO.getFileLocation();
+            FileWriter writer = newFileWriter(fileLocation+DATA_CONFIG_DEFAULT_NAME);
             TemplateEngine templateEngine = newTemplateEngine();
             context.setVariable(dataSourceInThymeleaf, generatorService.generatorDataSource(inputDTO));
             context.setVariable(entityListInThymeleaf, generatorService.generatorEntity(inputDTO));

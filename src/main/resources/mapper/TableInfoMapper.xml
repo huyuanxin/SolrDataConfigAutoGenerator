@@ -47,14 +47,14 @@
     </select>
     <select id="getBuiltTableInfoForOutput" resultType="yuanxin.solr.generator.entity.output.ColumnNameInfoForOutput">
         SELECT column_name as columnName, column_type as columnType, column_info as columnInfo
-        FROM `built_table_info`
+        FROM built_table_info
         where database_name = #{databaseName}
           and table_name = #{tableName}
     </select>
     <select id="getBuiltTableInfoForInput"
             resultType="yuanxin.solr.generator.entity.input.ColumnNameInfoForInput">
         SELECT column_name as columnName, column_type as columnType, column_info as columnInfo
-        FROM `built_table_info`
+        FROM built_table_info
         where database_name = #{databaseName}
           and table_name = #{tableName}
     </select>

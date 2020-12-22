@@ -102,6 +102,8 @@ public class GeneratorServiceImpl implements GeneratorService {
             }
         }
         // 记录已构建的列和更新经构建的表
+        clearBuiltDataBaseInfo();
+        initTableInfo();
         updateBuiltDataBaseInfo(dataBaseList);
         updateTableInfo(dataBaseList);
         // 构建列
@@ -170,7 +172,7 @@ public class GeneratorServiceImpl implements GeneratorService {
         columnNameList.removeIf("id"::equals);
         StringBuilder sql = new StringBuilder();
         // 构造Query
-        sql.append("Select CONCAT('tableName+',id) as id,");
+        sql.append("Select CONCAT(").append("'").append(dataBase.getTableName()).append("'").append(",id) as id,");
         int size = columnNameList.size() - 1;
         for (int i = 0; i < size; i++) {
             sql.append("`").append(columnNameList.get(i)).append("`,");
@@ -219,7 +221,6 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @param dataBaseList 更新的队列 {@link List<DataBase>}
      */
     private void updateBuiltDataBaseInfo(List<DataBase> dataBaseList) {
-        clearBuiltDataBaseInfo();
         for (DataBase dataBase : dataBaseList
         ) {
             List<ColumnNameInfoForInput> columnInfoList = dataBase.getColumnNameInfoForInputList();
@@ -248,7 +249,6 @@ public class GeneratorServiceImpl implements GeneratorService {
      * @param dataBaseList 数据库队列 {@link List<DataBase>}
      */
     private void updateTableInfo(List<DataBase> dataBaseList) {
-        initTableInfo();
         for (DataBase dataBase : dataBaseList
         ) {
             solrTableMapper.updateTableInfo(dataBase.getDataBaseName(), dataBase.getTableName(), true);

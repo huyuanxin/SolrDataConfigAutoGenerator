@@ -10,7 +10,7 @@ import lombok.Data;
  * @author huyuanxin
  */
 @Data
-@ApiModel(value = "ColumnNameInfo", description = "数据库列的信息")
+@ApiModel(value = "ColumnNameInfoForOutput", description = "数据库列的信息")
 public class ColumnNameInfoForOutput {
     /**
      * 列名 {@link String}

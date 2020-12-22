@@ -18,7 +18,11 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(value = "InputDTO", description = "传入的数据")
 public class InputDTO {
-
+    /**
+     * 生成文件的位置
+     */
+    @ApiModelProperty("生成文件的位置")
+    String fileLocation;
     /**
      * 已经构建了的数据库的名字
      */
