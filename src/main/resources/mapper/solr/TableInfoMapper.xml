@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="yuanxin.solr.generator.mapper.TableInfoMapper">
+
+    <!-- 可根据自己的需求，是否要使用 table_info [com.gzcr.generator.modules.entity.ColumnEntity@18f7c398, com.gzcr.generator.modules.entity.ColumnEntity@26a3823, com.gzcr.generator.modules.entity.ColumnEntity@7f30a5b3, com.gzcr.generator.modules.entity.ColumnEntity@6e632481, com.gzcr.generator.modules.entity.ColumnEntity@482ed1d6] -->
+    <resultMap type="yuanxin.solr.generator.entity.TableInfo" id="tableInfoMap">
+        <result property="id" column="id"/>
+        <result property="databaseName" column="database_name"/>
+        <result property="tableName" column="table_name"/>
+        <result property="build" column="build"/>
+        <result property="saved" column="saved"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 111-->
+    <sql id="Base_Column_List">
+        id
+        ,
+                database_name AS databaseName,
+                table_name AS tableName,
+                build,
+                saved,
+    </sql>
+
+
+    <!-- mybatis plus where -->
+    <sql id="entityWrapperJoin">
+        <where>
+            <if test="ew != null">
+                <if test="ew.entity != null">
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.id=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.database_name=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.table_name=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.build=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.saved=#{ew.entity.${field.attrname}}
+                    </if>
+                </if>
+                <if test="ew!=null and ew.sqlSegment!=null and ew.notEmptyOfWhere">
+                    ${ew.sqlSegment}
+                </if>
+            </if>
+        </where>
+        <if test="ew!=null and ew.sqlSegment!=null and ew.emptyOfWhere">
+            ${ew.sqlSegment}
+        </if>
+    </sql>
+    <!---->
+    <update id="initTableBuild">
+        Update table_info
+        Set build= false
+        Where id > 0
+    </update>
+</mapper>
