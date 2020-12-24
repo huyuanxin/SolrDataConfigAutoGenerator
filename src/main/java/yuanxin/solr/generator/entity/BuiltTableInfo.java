@@ -19,12 +19,6 @@ import java.io.Serializable;
 @ApiModel(value = "BuiltTableInfo", description = "对应数据库中的built_table_info")
 public class BuiltTableInfo implements Serializable {
     /**
-     * id
-     */
-    @ApiModelProperty(value = "id")
-    private Integer id;
-
-    /**
      * 数据库名
      */
     @ApiModelProperty(value = "数据库名")

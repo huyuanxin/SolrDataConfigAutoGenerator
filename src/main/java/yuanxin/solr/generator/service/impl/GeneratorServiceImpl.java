@@ -9,7 +9,7 @@ import yuanxin.solr.generator.model.solr.Field;
 import yuanxin.solr.generator.service.BuiltTableInfoService;
 import yuanxin.solr.generator.service.GeneratorService;
 import yuanxin.solr.generator.service.TableInfoService;
-import yuanxin.solr.generator.util.GeneratorTool;
+import yuanxin.solr.generator.util.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,13 +43,13 @@ public class GeneratorServiceImpl implements GeneratorService {
     final BuiltTableInfoService builtTableInfoService;
     final TableInfoService tableInfoService;
 
-    final GeneratorTool generatorTool;
+    final util util;
 
     @Autowired
-    public GeneratorServiceImpl(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService, GeneratorTool generatorTool) {
+    public GeneratorServiceImpl(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService, util util) {
         this.builtTableInfoService = builtTableInfoService;
         this.tableInfoService = tableInfoService;
-        this.generatorTool = generatorTool;
+        this.util = util;
     }
 
     /**
@@ -61,10 +61,10 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public List<DataSource> generatorDataSource(GeneratorInput generatorInput) {
         List<DataSource> dataSourceList = new ArrayList<>();
-        List<TableInfo> tableInfoList = generatorTool.getTableInfo(generatorInput);
+        List<TableInfo> tableInfoList = util.getTableInfo(generatorInput);
         for (TableInfo tableInfo : tableInfoList
         ) {
-            dataSourceList.add(generatorTool.tableInfoToDataSource(tableInfo));
+            dataSourceList.add(util.tableInfoToDataSource(tableInfo));
         }
         return dataSourceList;
     }
@@ -78,15 +78,15 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public List<Entity> generatorEntity(GeneratorInput generatorInput) {
         List<Entity> entityList = new ArrayList<>();
-        List<TableInfo> tableInfoList = generatorTool.getTableInfo(generatorInput);
+        List<TableInfo> tableInfoList = util.getTableInfo(generatorInput);
         for (TableInfo tableInfo : tableInfoList
         ) {
-            List<BuiltTableInfo> builtTableInfo = generatorTool.getBuiltTableInfo(tableInfo);
+            List<BuiltTableInfo> builtTableInfo = util.getBuiltTableInfo(tableInfo);
             Entity entity = new Entity(tableInfo.getTableName(),
                     tableInfo.getDatabaseName(),
-                    generatorTool.generatorQuerySqlCommand(builtTableInfo),
-                    generatorTool.generatorDeltaImportCommand(builtTableInfo),
-                    generatorTool.generatorDeltaQuerySqlCommand(builtTableInfo),
+                    util.generatorQuerySqlCommand(builtTableInfo),
+                    util.generatorDeltaImportCommand(builtTableInfo),
+                    util.generatorDeltaQuerySqlCommand(builtTableInfo),
                     generatorField(builtTableInfo));
             entityList.add(entity);
         }
@@ -131,8 +131,8 @@ public class GeneratorServiceImpl implements GeneratorService {
     public boolean generator(GeneratorInput generatorInput) {
         try {
             Context context = new Context();
-            FileWriter writer = generatorTool.newFileWriter(fileLocation + DATA_CONFIG_DEFAULT_NAME);
-            TemplateEngine templateEngine = generatorTool.newTemplateEngine();
+            FileWriter writer = util.newFileWriter(fileLocation + DATA_CONFIG_DEFAULT_NAME);
+            TemplateEngine templateEngine = util.newTemplateEngine();
             context.setVariable(dataSourceInThymeleaf, generatorDataSource(generatorInput));
             context.setVariable(entityListInThymeleaf, generatorEntity(generatorInput));
             templateEngine.process(TemplateName, context, writer);

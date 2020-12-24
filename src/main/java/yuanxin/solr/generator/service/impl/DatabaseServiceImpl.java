@@ -119,7 +119,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         for (BuiltTableInfo columnInfo : columnInfoList
         ) {
             saveList.add(new BuiltTableInfo(
-                            0,
                             databaseName,
                             tableName,
                             columnInfo.getColumnName(),

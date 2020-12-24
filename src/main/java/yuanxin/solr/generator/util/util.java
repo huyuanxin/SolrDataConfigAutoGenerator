@@ -25,7 +25,7 @@ import java.util.List;
  * @author huyuanxin
  */
 @Component
-public class GeneratorTool {
+public class util {
     @Value("${spring.datasource.driver-class-name}")
     private String dataConfigDriver;
 
@@ -42,7 +42,7 @@ public class GeneratorTool {
     final TableInfoService tableInfoService;
 
     @Autowired
-    public GeneratorTool(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService) {
+    public util(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService) {
         this.builtTableInfoService = builtTableInfoService;
         this.tableInfoService = tableInfoService;
     }

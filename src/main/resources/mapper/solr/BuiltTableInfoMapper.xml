@@ -5,7 +5,6 @@
 
     <!-- 可根据自己的需求，是否要使用 built_table_info [com.gzcr.generator.modules.entity.ColumnEntity@7502d71e, com.gzcr.generator.modules.entity.ColumnEntity@7b35fd13, com.gzcr.generator.modules.entity.ColumnEntity@47f784aa, com.gzcr.generator.modules.entity.ColumnEntity@4d648564, com.gzcr.generator.modules.entity.ColumnEntity@2ebd01f1, com.gzcr.generator.modules.entity.ColumnEntity@7a34ac50] -->
     <resultMap type="yuanxin.solr.generator.entity.BuiltTableInfo" id="builtTableInfoMap">
-        <result property="id" column="id"/>
         <result property="databaseName" column="database_name"/>
         <result property="tableName" column="table_name"/>
         <result property="columnName" column="column_name"/>
@@ -15,9 +14,7 @@
 
     <!-- 通用查询结果列 111-->
     <sql id="Base_Column_List">
-        id
-        ,
-                database_name AS databaseName,
+        database_name AS databaseName,
                 table_name AS tableName,
                 column_name AS columnName,
                 column_type AS columnType,
@@ -30,9 +27,6 @@
         <where>
             <if test="ew != null">
                 <if test="ew.entity != null">
-                    <if test="ew.entity.${column.propertyName}!=null">
-                        AND a.id=#{ew.entity.${field.attrname}}
-                    </if>
                     <if test="ew.entity.${column.propertyName}!=null">
                         AND a.database_name=#{ew.entity.${field.attrname}}
                     </if>
