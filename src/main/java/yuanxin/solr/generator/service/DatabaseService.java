@@ -22,7 +22,7 @@ public interface DatabaseService {
      * @param built          是否构建的状态
      * @return 成功的条数
      */
-    int updateTableInfoBuiltStatus(GeneratorInput generatorInput, boolean built);
+    boolean updateTableInfoBuiltStatus(GeneratorInput generatorInput, boolean built);
 
     /**
      * 更新数据表table_info
@@ -62,4 +62,12 @@ public interface DatabaseService {
      * @return 已经构建或者已经保存的表
      */
     List<TableInfo> getBuiltOrSavedTable();
+
+    /**
+     * 删除需要生成表的操作
+     *
+     * @param tableIdList 表对应的字段
+     * @return 是否删除成功
+     */
+    boolean deleteBuiltOrSavedTable(List<Integer> tableIdList);
 }

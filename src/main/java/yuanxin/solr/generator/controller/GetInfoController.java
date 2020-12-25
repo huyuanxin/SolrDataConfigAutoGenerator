@@ -1,5 +1,6 @@
 package yuanxin.solr.generator.controller;
 
+import org.springframework.web.bind.annotation.*;
 import yuanxin.solr.generator.entity.TableInfo;
 import yuanxin.solr.generator.model.ColumnInfo;
 import yuanxin.solr.generator.service.DatabaseService;
@@ -7,9 +8,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -37,7 +35,7 @@ public class GetInfoController {
         return databaseService.getTableColumn(tableId);
     }
 
-    @GetMapping("/getBuiltOrSavedTable")
+    @PostMapping("/getBuiltOrSavedTable")
     @ApiOperation("获得已构建和已保存的表")
     public List<TableInfo> getBuiltOrSavedTable() {
         return databaseService.getBuiltOrSavedTable();

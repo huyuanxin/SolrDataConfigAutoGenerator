@@ -47,14 +47,14 @@ public class DatabaseServiceImpl implements DatabaseService {
      * @return 成功的条数
      */
     @Override
-    public int updateTableInfoBuiltStatus(GeneratorInput generatorInput, boolean built) {
-        int response = 0;
+    public boolean updateTableInfoBuiltStatus(GeneratorInput generatorInput, boolean built) {
+        boolean response = true;
         List<Integer> tableIdList = generatorInput.getTableIdList();
         for (int tableId : tableIdList
         ) {
             TableInfo tableInfo = tableInfoService.getById(tableId);
             tableInfo.setBuild(built);
-            tableInfoService.updateById(tableInfo);
+            response = tableInfoService.updateById(tableInfo);
         }
         return response;
     }
@@ -69,8 +69,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public boolean updateTableInfoSavedStatus(int id, boolean save) {
         TableInfo tableInfo = tableInfoService.getById(id);
-        tableInfo.setSaved(save);
-        return tableInfoService.updateById(tableInfo);
+        if (tableInfo != null) {
+            tableInfo.setSaved(save);
+            return tableInfoService.updateById(tableInfo);
+        }
+        return true;
     }
 
     /**
@@ -93,43 +96,46 @@ public class DatabaseServiceImpl implements DatabaseService {
     public boolean saveGeneratorColumn(SaveInput saveInput) {
         int tableId = saveInput.getTableId();
         TableInfo tableInfo = tableInfoService.getById(tableId);
-        List<String> inputColumnInfoList = saveInput.getColumnInfoList();
-        String databaseName = tableInfo.getDatabaseName();
-        String tableName = tableInfo.getTableName();
-        // 获得数据库的信息
-        List<BuiltTableInfo> builtTableInfoList = builtTableInfoMapper.getColumnInfoList(databaseName, tableName);
-        List<BuiltTableInfo> columnInfoList = new ArrayList<>();
-        for (String s : inputColumnInfoList
-        ) {
-            for (BuiltTableInfo info : builtTableInfoList
+        if (tableInfo != null) {
+            List<String> inputColumnInfoList = saveInput.getColumnInfoList();
+            String databaseName = tableInfo.getDatabaseName();
+            String tableName = tableInfo.getTableName();
+            // 获得数据库的信息
+            List<BuiltTableInfo> builtTableInfoList = builtTableInfoMapper.getColumnInfoList(databaseName, tableName);
+            List<BuiltTableInfo> columnInfoList = new ArrayList<>();
+            for (String s : inputColumnInfoList
             ) {
-                if (info.getColumnName().equals(s)) {
-                    columnInfoList.add(info);
-                    break;
+                for (BuiltTableInfo info : builtTableInfoList
+                ) {
+                    if (info.getColumnName().equals(s)) {
+                        columnInfoList.add(info);
+                        break;
+                    }
                 }
             }
+            // 清除数据库
+            Map<String, Object> columnMap = new HashMap<>(2);
+            columnMap.put("database_name", tableInfo.getDatabaseName());
+            columnMap.put("table_name", tableInfo.getTableName());
+            builtTableInfoMapper.deleteByMap(columnMap);
+            // 保存到数据库
+            List<BuiltTableInfo> saveList = new ArrayList<>();
+            for (BuiltTableInfo columnInfo : columnInfoList
+            ) {
+                saveList.add(new BuiltTableInfo(
+                                databaseName,
+                                tableName,
+                                columnInfo.getColumnName(),
+                                columnInfo.getColumnType(),
+                                columnInfo.getColumnInfo()
+                        )
+                );
+            }
+            boolean response = builtTableInfoService.saveBatch(saveList);
+            updateTableInfoSavedStatus(tableId, true);
+            return response;
         }
-        // 清除数据库
-        Map<String, Object> columnMap = new HashMap<>(2);
-        columnMap.put("database_name", tableInfo.getDatabaseName());
-        columnMap.put("table_name", tableInfo.getTableName());
-        builtTableInfoMapper.deleteByMap(columnMap);
-        // 保存到数据库
-        List<BuiltTableInfo> saveList = new ArrayList<>();
-        for (BuiltTableInfo columnInfo : columnInfoList
-        ) {
-            saveList.add(new BuiltTableInfo(
-                            databaseName,
-                            tableName,
-                            columnInfo.getColumnName(),
-                            columnInfo.getColumnType(),
-                            columnInfo.getColumnInfo()
-                    )
-            );
-        }
-        boolean response = builtTableInfoService.saveBatch(saveList);
-        updateTableInfoSavedStatus(tableId, true);
-        return response;
+        return false;
     }
 
     /**
@@ -143,34 +149,37 @@ public class DatabaseServiceImpl implements DatabaseService {
         // 获得全部字段
         List<ColumnInfo> columnInfoList = new ArrayList<>();
         TableInfo tableInfo = tableInfoService.getById(tableId);
-        List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getColumnInfoList(tableInfo.getDatabaseName(), tableInfo.getTableName());
-        // 获得已构建的字段
-        List<BuiltTableInfo> builtColumnList = getBuiltTableColumn(tableId);
-        if (builtColumnList != null) {
-            // 获得未构建的字段
-            for (BuiltTableInfo list : builtColumnList
-            ) {
-                allColumnList.removeIf(it -> it.getColumnName().equals(list.getColumnName()));
-            }
+        if (tableInfo != null) {
+            List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getColumnInfoList(tableInfo.getDatabaseName(), tableInfo.getTableName());
+            // 获得已构建的字段
+            List<BuiltTableInfo> builtColumnList = getBuiltTableColumn(tableId);
+            if (builtColumnList != null) {
+                // 获得未构建的字段
+                for (BuiltTableInfo list : builtColumnList
+                ) {
+                    allColumnList.removeIf(it -> it.getColumnName().equals(list.getColumnName()));
+                }
 
-            for (BuiltTableInfo builtTableInfo : builtColumnList
+                for (BuiltTableInfo builtTableInfo : builtColumnList
+                ) {
+                    columnInfoList.add(new ColumnInfo(
+                            builtTableInfo.getColumnName(),
+                            builtTableInfo.getColumnType(),
+                            builtTableInfo.getColumnInfo(), true)
+                    );
+                }
+            }
+            for (BuiltTableInfo builtTableInfo : allColumnList
             ) {
                 columnInfoList.add(new ColumnInfo(
                         builtTableInfo.getColumnName(),
                         builtTableInfo.getColumnType(),
-                        builtTableInfo.getColumnInfo(), true)
+                        builtTableInfo.getColumnInfo(), false)
                 );
             }
+            return columnInfoList;
         }
-        for (BuiltTableInfo builtTableInfo : allColumnList
-        ) {
-            columnInfoList.add(new ColumnInfo(
-                    builtTableInfo.getColumnName(),
-                    builtTableInfo.getColumnType(),
-                    builtTableInfo.getColumnInfo(), false)
-            );
-        }
-        return columnInfoList;
+        return new ArrayList<>();
     }
 
     @Override
@@ -178,6 +187,34 @@ public class DatabaseServiceImpl implements DatabaseService {
         QueryWrapper<TableInfo> tableInfoQueryWrapper = new QueryWrapper<>();
         tableInfoQueryWrapper.eq("saved", true);
         return tableInfoService.list(tableInfoQueryWrapper);
+    }
+
+    /**
+     * 删除需要生成表的操作
+     *
+     * @param tableIdList 表对应的字段
+     * @return 是否删除成功
+     */
+    @Override
+    public boolean deleteBuiltOrSavedTable(List<Integer> tableIdList) {
+        boolean response = true;
+        for (int tableId : tableIdList
+        ) {
+            TableInfo tableInfo = tableInfoService.getById(tableId);
+            if (tableInfo != null) {
+                tableInfo.setBuild(false);
+                tableInfo.setSaved(false);
+                tableInfoService.saveOrUpdate(tableInfo);
+                QueryWrapper<BuiltTableInfo> builtTableInfoQueryWrapper = new QueryWrapper<>();
+                builtTableInfoQueryWrapper
+                        .eq("database_name", tableInfo.getDatabaseName())
+                        .eq("table_name", tableInfo.getTableName());
+                response = builtTableInfoService.remove(builtTableInfoQueryWrapper);
+            } else {
+                response = false;
+            }
+        }
+        return response;
     }
 
 
