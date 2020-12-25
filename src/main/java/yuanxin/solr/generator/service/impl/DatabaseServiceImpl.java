@@ -217,6 +217,19 @@ public class DatabaseServiceImpl implements DatabaseService {
         return response;
     }
 
+    /**
+     * 通过关键词查询TableInfo
+     *
+     * @param key 搜索关键词
+     * @return 查询到的
+     */
+    @Override
+    public List<TableInfo> searchTableInfo(String key) {
+        QueryWrapper<TableInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("table_name", key).or().like("database_name",key);
+        return tableInfoService.list(queryWrapper);
+    }
+
 
     public List<BuiltTableInfo> getBuiltTableColumn(int tableId) {
         TableInfo tableInfo = tableInfoService.getById(tableId);

@@ -70,4 +70,12 @@ public interface DatabaseService {
      * @return 是否删除成功
      */
     boolean deleteBuiltOrSavedTable(List<Integer> tableIdList);
+
+    /**
+     * 通过关键词查询TableInfo
+     *
+     * @param key 搜索关键词
+     * @return 查询到的
+     */
+    List<TableInfo> searchTableInfo(String key);
 }

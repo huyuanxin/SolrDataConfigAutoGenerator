@@ -1,13 +1,12 @@
 package yuanxin.solr.generator.controller;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
+import io.swagger.annotations.ApiParam;
+import org.springframework.web.bind.annotation.*;
+import yuanxin.solr.generator.entity.TableInfo;
 import yuanxin.solr.generator.model.SaveInput;
 import yuanxin.solr.generator.service.DatabaseService;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -40,5 +39,14 @@ public class CurdController {
             @RequestBody List<Integer> tableIdList
     ) {
         return databaseService.deleteBuiltOrSavedTable(tableIdList);
+    }
+
+    @ApiOperation("查询")
+    @PostMapping("/search")
+    public List<TableInfo> search(
+            @ApiParam("关键词")
+            @RequestParam("key") String key
+    ) {
+        return databaseService.searchTableInfo(key);
     }
 }
