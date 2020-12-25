@@ -9,7 +9,7 @@ import yuanxin.solr.generator.model.solr.Field;
 import yuanxin.solr.generator.service.BuiltTableInfoService;
 import yuanxin.solr.generator.service.GeneratorService;
 import yuanxin.solr.generator.service.TableInfoService;
-import yuanxin.solr.generator.util.util;
+import yuanxin.solr.generator.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,10 +43,10 @@ public class GeneratorServiceImpl implements GeneratorService {
     final BuiltTableInfoService builtTableInfoService;
     final TableInfoService tableInfoService;
 
-    final util util;
+    final Util util;
 
     @Autowired
-    public GeneratorServiceImpl(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService, util util) {
+    public GeneratorServiceImpl(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService, Util util) {
         this.builtTableInfoService = builtTableInfoService;
         this.tableInfoService = tableInfoService;
         this.util = util;

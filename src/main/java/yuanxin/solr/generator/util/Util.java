@@ -25,7 +25,7 @@ import java.util.List;
  * @author huyuanxin
  */
 @Component
-public class util {
+public class Util {
     @Value("${spring.datasource.driver-class-name}")
     private String dataConfigDriver;
 
@@ -42,7 +42,7 @@ public class util {
     final TableInfoService tableInfoService;
 
     @Autowired
-    public util(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService) {
+    public Util(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService) {
         this.builtTableInfoService = builtTableInfoService;
         this.tableInfoService = tableInfoService;
     }
