@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @author Exrickx
+ * @author huyuanxin
  */
 @Data
 public class PageVo implements Serializable {

@@ -8,6 +8,9 @@ import org.apache.ibatis.session.RowBounds;
 
 import java.io.Serializable;
 
+/**
+ * @author huyuanxin
+ */
 @ApiModel(description = "分页DTO")
 @Data
 public class PageDTO implements Serializable {
