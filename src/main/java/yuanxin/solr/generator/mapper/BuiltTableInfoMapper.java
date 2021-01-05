@@ -1,6 +1,5 @@
 package yuanxin.solr.generator.mapper;
 
-
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.baomidou.mybatisplus.plugins.Page;
 

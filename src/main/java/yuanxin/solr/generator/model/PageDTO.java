@@ -1,6 +1,5 @@
 package yuanxin.solr.generator.model;
 
-
 import com.baomidou.mybatisplus.plugins.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,8 +17,8 @@ public class PageDTO implements Serializable {
     @ApiModelProperty(value = "页大小")
     private Integer size;
 
-    public static Page buildPage(PageDTO dto){
-        if(dto == null){
+    public static Page buildPage(PageDTO dto) {
+        if (dto == null) {
             return new Page(RowBounds.NO_ROW_OFFSET, RowBounds.NO_ROW_LIMIT);
         }
         Integer dtoCurrent = dto.getCurrent();

@@ -1,6 +1,5 @@
 package yuanxin.solr.generator.mapper;
 
-
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 import org.springframework.stereotype.Repository;

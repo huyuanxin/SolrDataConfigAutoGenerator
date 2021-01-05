@@ -6,37 +6,36 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import yuanxin.solr.generator.model.PageVo;
 
-
 /**
  * @author Exrickx
  */
 public class PageUtil {
 
-    public static Pageable initPage(PageVo page){
+    public static Pageable initPage(PageVo page) {
 
-        Pageable pageable=null;
-        int pageNumber=page.getPageNumber();
-        int pageSize=page.getPageSize();
-        String sort=page.getSort();
-        String order=page.getOrder();
+        Pageable pageable = null;
+        int pageNumber = page.getPageNumber();
+        int pageSize = page.getPageSize();
+        String sort = page.getSort();
+        String order = page.getOrder();
 
-        if(pageNumber<1){
-            pageNumber=1;
+        if (pageNumber < 1) {
+            pageNumber = 1;
         }
-        if(pageSize<1){
-            pageSize=10;
+        if (pageSize < 1) {
+            pageSize = 10;
         }
-        if(StrUtil.isNotBlank(sort)) {
+        if (StrUtil.isNotBlank(sort)) {
             Sort.Direction d;
-            if(StrUtil.isBlank(order)) {
+            if (StrUtil.isBlank(order)) {
                 d = Sort.Direction.DESC;
-            }else {
+            } else {
                 d = Sort.Direction.valueOf(order.toUpperCase());
             }
-            Sort s = new Sort(d,sort);
-            pageable = PageRequest.of(pageNumber-1, pageSize,s);
-        }else {
-            pageable = PageRequest.of(pageNumber-1, pageSize);
+            Sort s = new Sort(d, sort);
+            pageable = PageRequest.of(pageNumber - 1, pageSize, s);
+        } else {
+            pageable = PageRequest.of(pageNumber - 1, pageSize);
         }
         return pageable;
     }

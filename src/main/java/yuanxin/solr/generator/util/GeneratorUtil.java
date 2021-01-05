@@ -121,7 +121,7 @@ public class GeneratorUtil {
         EntityWrapper<TableInfo> queryWrapper = new EntityWrapper<>();
         queryWrapper.in("id", tableIdList);
         List<TableInfo> result = tableInfoService.selectList(queryWrapper);
-        if (result != null&&result.size()!=0) {
+        if (result != null && result.size() != 0) {
             return result;
         }
         return new ArrayList<>();

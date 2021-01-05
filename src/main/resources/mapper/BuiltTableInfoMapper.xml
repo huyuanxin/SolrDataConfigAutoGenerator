@@ -14,8 +14,8 @@
 
     <!-- 通用查询结果列 111-->
     <sql id="Base_Column_List">
-                database_name
-                AS databaseName,
+        database_name
+        AS databaseName,
         table_name AS tableName,
         column_name AS columnName,
         column_type AS columnType,
@@ -108,7 +108,6 @@
             <include refid="SqlServerGetColumn"/>
         </if>
     </select>
-
 
     <select id="getColumnInfoPage" resultType="yuanxin.solr.generator.entity.BuiltTableInfo">
         <if test="_databaseId == 'mysql'">

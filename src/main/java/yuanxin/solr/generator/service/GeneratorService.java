@@ -1,6 +1,5 @@
 package yuanxin.solr.generator.service;
 
-
 import org.springframework.stereotype.Service;
 import yuanxin.solr.generator.entity.BuiltTableInfo;
 import yuanxin.solr.generator.model.SolrResult;
