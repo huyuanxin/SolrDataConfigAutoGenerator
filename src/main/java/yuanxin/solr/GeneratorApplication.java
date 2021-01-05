@@ -17,19 +17,7 @@ import java.util.Properties;
 @SpringBootApplication
 @MapperScan("yuanxin.solr.generator.mapper")
 public class GeneratorApplication {
-
-    @Bean
-    public DatabaseIdProvider getDatabaseIdProvider() {
-        DatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider();
-        Properties properties = new Properties();
-        properties.setProperty("MySQL", "mysql");
-        properties.setProperty("Oracle", "oracle");
-        properties.setProperty("SQL Server", "sqlserver");
-        databaseIdProvider.setProperties(properties);
-        return databaseIdProvider;
-    }
     public static void main(String[] args) {
         SpringApplication.run(GeneratorApplication.class, args);
     }
-
 }
