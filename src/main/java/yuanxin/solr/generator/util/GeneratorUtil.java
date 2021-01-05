@@ -1,22 +1,23 @@
 package yuanxin.solr.generator.util;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import yuanxin.solr.generator.entity.BuiltTableInfo;
-import yuanxin.solr.generator.entity.TableInfo;
-import yuanxin.solr.generator.model.GeneratorInput;
-import yuanxin.solr.generator.model.solr.DataSource;
-import yuanxin.solr.generator.service.BuiltTableInfoService;
-import yuanxin.solr.generator.service.TableInfoService;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import yuanxin.solr.generator.entity.BuiltTableInfo;
+import yuanxin.solr.generator.entity.TableInfo;
+import yuanxin.solr.generator.model.solr.DataSource;
+import yuanxin.solr.generator.service.BuiltTableInfoService;
+import yuanxin.solr.generator.service.TableInfoService;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ import java.util.List;
  * @author huyuanxin
  */
 @Component
-public class Util {
+public class GeneratorUtil {
     @Value("${spring.datasource.driver-class-name}")
     private String dataConfigDriver;
 
@@ -41,8 +42,12 @@ public class Util {
     final BuiltTableInfoService builtTableInfoService;
     final TableInfoService tableInfoService;
 
+    final String MYSQL = "mysql";
+    final String SQLSERVER = "sqlserver";
+    final String ORACLE = "oracle";
+
     @Autowired
-    public Util(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService) {
+    public GeneratorUtil(BuiltTableInfoService builtTableInfoService, TableInfoService tableInfoService) {
         this.builtTableInfoService = builtTableInfoService;
         this.tableInfoService = tableInfoService;
     }
@@ -54,10 +59,10 @@ public class Util {
      * @return {@link BuiltTableInfo}
      */
     public List<BuiltTableInfo> getBuiltTableInfo(TableInfo tableInfo) {
-        QueryWrapper<BuiltTableInfo> queryWrapper = new QueryWrapper<>();
+        EntityWrapper<BuiltTableInfo> queryWrapper = new EntityWrapper<>();
         queryWrapper.eq("database_name", tableInfo.getDatabaseName());
         queryWrapper.eq("table_name", tableInfo.getTableName());
-        return builtTableInfoService.list(queryWrapper);
+        return builtTableInfoService.selectList(queryWrapper);
     }
 
     /**
@@ -71,12 +76,18 @@ public class Util {
         builtTableInfo.removeIf(it -> "id".equals(it.getColumnName()));
         StringBuilder sql = new StringBuilder();
         // 构造Query
-        sql.append("Select CONCAT(").append("'").append(tableName).append("_").append("'").append(",id) as id,");
+        if (dataConfigUrl.contains(MYSQL) || dataConfigUrl.contains(ORACLE)) {
+            sql.append("Select CONCAT(").append("'").append(tableName).append("_").append("'").append(",id) as id,");
+        } else if (dataConfigUrl.contains(SQLSERVER)) {
+            // SQLServer 2012之前需要
+            // Select CONCAT('sd'+id) as id,hosp_district_code From pa_patient_info
+            sql.append("Select ").append("'").append(tableName).append("_").append("'+").append("id as id,");
+        }
         int size = builtTableInfo.size() - 1;
         for (int i = 0; i < size; i++) {
-            sql.append("`").append(builtTableInfo.get(i).getColumnName()).append("`,");
+            sql.append(builtTableInfo.get(i).getColumnName()).append(",");
         }
-        sql.append("`").append(builtTableInfo.get(size).getColumnName()).append("` ").append("From ").append(tableName);
+        sql.append(builtTableInfo.get(size).getColumnName()).append(" From ").append(tableName);
         return sql.toString();
     }
 
@@ -103,14 +114,17 @@ public class Util {
     }
 
     /**
-     * @param generatorInput 前端的输入
+     * @param tableIdList 前端的输入
      * @return {@link TableInfo}
      */
-    public List<TableInfo> getTableInfo(GeneratorInput generatorInput) {
-        List<Integer> tableIdList = generatorInput.getTableIdList();
-        QueryWrapper<TableInfo> queryWrapper = new QueryWrapper<>();
+    public List<TableInfo> getTableInfo(List<Integer> tableIdList) {
+        EntityWrapper<TableInfo> queryWrapper = new EntityWrapper<>();
         queryWrapper.in("id", tableIdList);
-        return tableInfoService.list(queryWrapper);
+        List<TableInfo> result = tableInfoService.selectList(queryWrapper);
+        if (result != null&&result.size()!=0) {
+            return result;
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -120,13 +134,13 @@ public class Util {
      * @return 转换出的 {@link DataSource}
      */
     public DataSource tableInfoToDataSource(TableInfo tableInfo) {
-        DataSource dataSource = new DataSource();
-        dataSource.setDataConfigName(tableInfo.getDatabaseName());
-        dataSource.setDataConfigDriver(dataConfigDriver);
-        dataSource.setDataConfigUser(dataConfigUser);
-        dataSource.setDataConfigPassword(dataConfigPassword);
-        dataSource.setDataConfigUrl(dataConfigUrl + tableInfo.getDatabaseName());
-        return dataSource;
+        return new DataSource(
+                tableInfo.getDatabaseName(),
+                dataConfigDriver,
+                dataConfigUrl + tableInfo.getDatabaseName(),
+                dataConfigUser,
+                dataConfigPassword
+        );
     }
 
 

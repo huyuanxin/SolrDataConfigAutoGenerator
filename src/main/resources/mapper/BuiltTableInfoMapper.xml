@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="yuanxin.solr.generator.mapper.BuiltTableInfoMapper">
+
+    <!-- 可根据自己的需求，是否要使用 built_table_info [com.gzcr.generator.modules.entity.ColumnEntity@7502d71e, com.gzcr.generator.modules.entity.ColumnEntity@7b35fd13, com.gzcr.generator.modules.entity.ColumnEntity@47f784aa, com.gzcr.generator.modules.entity.ColumnEntity@4d648564, com.gzcr.generator.modules.entity.ColumnEntity@2ebd01f1, com.gzcr.generator.modules.entity.ColumnEntity@7a34ac50] -->
+    <resultMap type="yuanxin.solr.generator.entity.BuiltTableInfo" id="builtTableInfoMap">
+        <result property="databaseName" column="database_name"/>
+        <result property="tableName" column="table_name"/>
+        <result property="columnName" column="column_name"/>
+        <result property="columnType" column="column_type"/>
+        <result property="columnInfo" column="column_info"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 111-->
+    <sql id="Base_Column_List">
+                database_name
+                AS databaseName,
+        table_name AS tableName,
+        column_name AS columnName,
+        column_type AS columnType,
+        column_info AS columnInfo,
+    </sql>
+
+    <sql id="MysqlGetColumn">
+        SELECT COLUMN_NAME as columnName, DATA_TYPE as columnType, COLUMN_COMMENT as columnInfo
+        FROM information_schema.`COLUMNS`
+        where TABLE_SCHEMA = #{databaseName}
+          and TABLE_NAME = #{tableName}
+    </sql>
+
+    <!--若出现null则是Oracle自动大写了-->
+    <sql id="OracleGetColumn">
+        select A.column_name as columnName,
+               A.data_type   as columnType,
+               B.comments    as columnInfo
+        from user_tab_columns A,
+             user_col_comments B
+        where A.Table_Name = B.Table_Name
+          and A.Column_Name = B.Column_Name
+          and A.Table_Name = #{tableName}
+    </sql>
+
+    <sql id="SqlServerGetColumn">
+        SELECT columnName = CAST(a.name AS VARCHAR(255)),
+               columnType = CAST(b.name AS VARCHAR(255)),
+               columnInfo = isnull(CAST(g.[value] AS VARCHAR(255)), '')
+        FROM syscolumns a
+                 left join
+             systypes b
+             on
+                 a.xusertype = b.xusertype
+                 inner join
+             sysobjects d
+             on
+                 a.id = d.id and d.xtype = 'U'
+                 left join
+             sys.extended_properties g
+             on
+                 a.id = g.major_id and a.colid = g.minor_id
+                 left join
+             sys.extended_properties f
+             on
+                 d.id = f.major_id and f.minor_id = 0
+        where d.name = upper(#{tableName})
+        order by a.id, a.colorder
+    </sql>
+
+    <!-- mybatis plus where -->
+    <sql id="entityWrapperJoin">
+        <where>
+            <if test="ew != null">
+                <if test="ew.entity != null">
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.database_name=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.table_name=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.column_name=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.column_type=#{ew.entity.${field.attrname}}
+                    </if>
+                    <if test="ew.entity.${column.propertyName}!=null">
+                        AND a.column_info=#{ew.entity.${field.attrname}}
+                    </if>
+                </if>
+                <if test="ew!=null and ew.sqlSegment!=null and ew.notEmptyOfWhere">
+                    ${ew.sqlSegment}
+                </if>
+            </if>
+        </where>
+        <if test="ew!=null and ew.sqlSegment!=null and ew.emptyOfWhere">
+            ${ew.sqlSegment}
+        </if>
+    </sql>
+
+    <select id="getAllColumnInfoList" resultType="yuanxin.solr.generator.entity.BuiltTableInfo">
+        <if test="_databaseId == 'mysql'">
+            <include refid="MysqlGetColumn"/>
+        </if>
+        <if test="_databaseId == 'oracle'">
+            <include refid="OracleGetColumn"/>
+        </if>
+        <if test="_databaseId == 'sqlserver'">
+            <include refid="SqlServerGetColumn"/>
+        </if>
+    </select>
+
+
+    <select id="getColumnInfoPage" resultType="yuanxin.solr.generator.entity.BuiltTableInfo">
+        <if test="_databaseId == 'mysql'">
+            <include refid="MysqlGetColumn"/>
+        </if>
+        <if test="_databaseId == 'oracle'">
+            <include refid="OracleGetColumn"/>
+        </if>
+        <if test="_databaseId == 'sqlserver'">
+            <include refid="SqlServerGetColumn"/>
+        </if>
+    </select>
+
+</mapper>

@@ -16,10 +16,10 @@
     <sql id="Base_Column_List">
         id
         ,
-                database_name AS databaseName,
-                table_name AS tableName,
-                build,
-                saved,
+        database_name AS databaseName,
+        table_name AS tableName,
+        build,
+        saved,
     </sql>
 
 
@@ -56,7 +56,14 @@
     <!---->
     <update id="initTableBuild">
         Update table_info
-        Set build= false
+        Set build= 0
         Where id > 0
     </update>
+    <select id="getBuiltTableId" resultType="java.lang.Integer">
+        SELECT DISTINCT(id)
+        FROM table_info
+        WHERE build = 1
+    </select>
+
+
 </mapper>

@@ -1,13 +1,14 @@
 package yuanxin.solr.generator.controller;
 
+import com.baomidou.mybatisplus.plugins.Page;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import yuanxin.solr.generator.entity.TableInfo;
 import yuanxin.solr.generator.model.ColumnInfo;
+import yuanxin.solr.generator.model.GetTableInput;
 import yuanxin.solr.generator.service.DatabaseService;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -17,7 +18,8 @@ import java.util.List;
  * @author huyuanxin
  */
 @RestController
-@ApiModel("获得信息")
+@Api(tags = "solr-auto-generator", description = "Solr自动生成")
+@RequestMapping("/xboot/solr/")
 public class GetInfoController {
     final DatabaseService databaseService;
 
@@ -26,18 +28,27 @@ public class GetInfoController {
         this.databaseService = databaseService;
     }
 
-    @GetMapping("/getColumnInfo")
-    @ApiOperation("获得表的字段信息")
-    public List<ColumnInfo> getColumnInfo(
-            @ApiParam(value = "tableId", type = "int")
-            @RequestParam("tableId") int tableId
+//    @PostMapping("/getColumnInfoPage")
+//    @ApiOperation(value = "获得表的字段信息,带分页")
+//    public Page<ColumnInfo> getColumnInfo(
+//            @RequestBody GetColumnInput getColumnInput
+//    ) {
+//        return databaseService.getTableColumn(getColumnInput);
+//    }
+
+    @PostMapping("/getColumnInfoList/{tableId}")
+    @ApiOperation(value = "获得表的字段信息")
+    public List<ColumnInfo> getAllColumnInfo(
+            @PathVariable int tableId
     ) {
-        return databaseService.getTableColumn(tableId);
+        return databaseService.getAllTableColumn(tableId);
     }
 
     @PostMapping("/getBuiltOrSavedTable")
-    @ApiOperation("获得已构建和已保存的表")
-    public List<TableInfo> getBuiltOrSavedTable() {
-        return databaseService.getBuiltOrSavedTable();
+    @ApiOperation(value = "查询表")
+    public Page<TableInfo> getBuiltOrSavedTable(
+            @RequestBody GetTableInput getTableInput
+    ) {
+        return databaseService.getTableWithSavedStatus(getTableInput);
     }
 }

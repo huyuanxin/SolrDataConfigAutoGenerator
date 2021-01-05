@@ -1,8 +1,9 @@
 package yuanxin.solr.generator.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import yuanxin.solr.generator.entity.TableInfo;
+import com.baomidou.mybatisplus.service.IService;
+
 import org.springframework.stereotype.Service;
+import yuanxin.solr.generator.entity.TableInfo;
 
 
 /**

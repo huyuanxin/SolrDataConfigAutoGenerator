@@ -1,11 +1,12 @@
 package yuanxin.solr.generator.service;
 
+
+import org.springframework.stereotype.Service;
 import yuanxin.solr.generator.entity.BuiltTableInfo;
+import yuanxin.solr.generator.model.SolrResult;
 import yuanxin.solr.generator.model.solr.DataSource;
 import yuanxin.solr.generator.model.solr.Entity;
 import yuanxin.solr.generator.model.solr.Field;
-import yuanxin.solr.generator.model.GeneratorInput;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -19,18 +20,18 @@ public interface GeneratorService {
     /**
      * 生成 {@link DataSource}
      *
-     * @param generatorInput 前端的输入
+     * @param tableIdList 前端的输入 {@link List<Integer>}
      * @return 生成的 {@link DataSource}
      */
-    List<DataSource> generatorDataSource(GeneratorInput generatorInput);
+    List<DataSource> generatorDataSource(List<Integer> tableIdList);
 
     /**
      * 生成 {@link Entity}
      *
-     * @param generatorInput 前端的输入
+     * @param tableIdList 前端的输入 {@link List<Integer>}
      * @return 成的 {@link Entity}
      */
-    List<Entity> generatorEntity(GeneratorInput generatorInput);
+    List<Entity> generatorEntity(List<Integer> tableIdList);
 
     /**
      * 生成FieldList
@@ -43,8 +44,8 @@ public interface GeneratorService {
     /**
      * 生成Xml文件的主函数
      *
-     * @param generatorInput 输入的数据 {@link GeneratorInput}
-     * @return 是否生成成功 {@link Boolean}
+     * @param tableIdList 输入的数据 {@link List<Integer>}
+     * @return 是否生成成功的相关信息 {@link SolrResult}
      */
-    boolean generator(GeneratorInput generatorInput);
+    SolrResult generator(List<Integer> tableIdList);
 }

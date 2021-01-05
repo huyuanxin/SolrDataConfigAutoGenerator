@@ -16,7 +16,7 @@ public class Field {
      * field的columnName属性 {@link String}
      */
     private String columnName;
-    
+
     /**
      * field的fieldName属性 {@link String}
      */

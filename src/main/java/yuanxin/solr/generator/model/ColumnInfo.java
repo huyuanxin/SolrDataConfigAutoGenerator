@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  * @author huyuanxin
  */
 @Data
-@ApiModel("字段构建信息")
+@ApiModel(value = "ColumnInfo", description = "字段构建信息")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ColumnInfo {
@@ -35,8 +35,8 @@ public class ColumnInfo {
     private String columnInfo;
 
     /**
-     *
+     * 是否已构建
      */
-    @ApiModelProperty(value = "是否已构建")
+    @ApiModelProperty(value = "是否已构建,true为已保存的,false为未保存的")
     private Boolean built;
 }

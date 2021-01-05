@@ -1,18 +1,19 @@
 package yuanxin.solr.generator.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+
+
+import com.baomidou.mybatisplus.plugins.Page;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import yuanxin.solr.generator.entity.BuiltTableInfo;
 import yuanxin.solr.generator.entity.TableInfo;
 import yuanxin.solr.generator.mapper.BuiltTableInfoMapper;
 import yuanxin.solr.generator.mapper.TableInfoMapper;
-import yuanxin.solr.generator.model.ColumnInfo;
-import yuanxin.solr.generator.model.GeneratorInput;
-import yuanxin.solr.generator.model.SaveInput;
-import yuanxin.solr.generator.service.DatabaseService;
+import yuanxin.solr.generator.model.*;
 import yuanxin.solr.generator.service.BuiltTableInfoService;
+import yuanxin.solr.generator.service.DatabaseService;
 import yuanxin.solr.generator.service.TableInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,17 +43,16 @@ public class DatabaseServiceImpl implements DatabaseService {
     /**
      * 更新数据表table_info
      *
-     * @param generatorInput 前端传入的数据
-     * @param built          是否构建的状态
-     * @return 成功的条数
+     * @param tableIdList 前端传入的数据 {@link List<Integer>}
+     * @param built       是否构建的状态 {@link Boolean}
+     * @return 是否成功 {@link Boolean}
      */
     @Override
-    public boolean updateTableInfoBuiltStatus(GeneratorInput generatorInput, boolean built) {
+    public boolean updateTableInfoBuiltStatus(List<Integer> tableIdList, boolean built) {
         boolean response = true;
-        List<Integer> tableIdList = generatorInput.getTableIdList();
         for (int tableId : tableIdList
         ) {
-            TableInfo tableInfo = tableInfoService.getById(tableId);
+            TableInfo tableInfo = tableInfoService.selectById(tableId);
             tableInfo.setBuild(built);
             response = tableInfoService.updateById(tableInfo);
         }
@@ -62,46 +62,46 @@ public class DatabaseServiceImpl implements DatabaseService {
     /**
      * 更新数据表table_info
      *
-     * @param id   id
-     * @param save 是否构建的状态
-     * @return 成功的条数
+     * @param id   id {@link Integer}
+     * @param save 是否构建的状态 {@link Boolean}
+     * @return 是否成功 {@link Boolean}
      */
     @Override
     public boolean updateTableInfoSavedStatus(int id, boolean save) {
-        TableInfo tableInfo = tableInfoService.getById(id);
+        TableInfo tableInfo = tableInfoService.selectById(id);
         if (tableInfo != null) {
             tableInfo.setSaved(save);
             return tableInfoService.updateById(tableInfo);
         }
-        return true;
+        return false;
     }
 
     /**
      * 重置是否构建为否
      *
-     * @return 是否成功
+     * @return 是否成功 {@link Boolean}
      */
     @Override
-    public int initTableBuild() {
-        return tableInfoMapper.initTableBuild();
+    public boolean initTableBuild() {
+        return tableInfoMapper.initTableBuild() > 0;
     }
 
     /**
      * 保存需要构建的字段
      *
-     * @param saveInput 前端的传输的数据
-     * @return 保存条数
+     * @param saveInput 前端的传输的数据 {@link SaveInput}
+     * @return 是否保存成功的信息 {@link SolrResult}
      */
     @Override
-    public boolean saveGeneratorColumn(SaveInput saveInput) {
+    public SolrResult saveGeneratorColumn(SaveInput saveInput) {
         int tableId = saveInput.getTableId();
-        TableInfo tableInfo = tableInfoService.getById(tableId);
+        TableInfo tableInfo = tableInfoService.selectById(tableId);
         if (tableInfo != null) {
             List<String> inputColumnInfoList = saveInput.getColumnInfoList();
             String databaseName = tableInfo.getDatabaseName();
             String tableName = tableInfo.getTableName();
             // 获得数据库的信息
-            List<BuiltTableInfo> builtTableInfoList = builtTableInfoMapper.getColumnInfoList(databaseName, tableName);
+            List<BuiltTableInfo> builtTableInfoList = builtTableInfoMapper.getAllColumnInfoList(databaseName, tableName);
             List<BuiltTableInfo> columnInfoList = new ArrayList<>();
             for (String s : inputColumnInfoList
             ) {
@@ -122,7 +122,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             List<BuiltTableInfo> saveList = new ArrayList<>();
             for (BuiltTableInfo columnInfo : columnInfoList
             ) {
-                saveList.add(new BuiltTableInfo(
+                saveList.add(
+                        new BuiltTableInfo(
                                 databaseName,
                                 tableName,
                                 columnInfo.getColumnName(),
@@ -131,112 +132,145 @@ public class DatabaseServiceImpl implements DatabaseService {
                         )
                 );
             }
-            boolean response = builtTableInfoService.saveBatch(saveList);
+            boolean response = builtTableInfoService.insertBatch(saveList);
             updateTableInfoSavedStatus(tableId, true);
-            return response;
+            return new SolrResult(response, "保存成功");
         }
-        return false;
+        return new SolrResult(false, "保存成功");
     }
 
     /**
      * 通过表id获得表的字段信息
      *
-     * @param tableId 表对应的id
-     * @return 表的字段信息
+     * @param getColumnInput 表对应的id {@link GetColumnInput}
+     * @return 表的字段信息 {@link List<ColumnInfo>}
      */
     @Override
-    public List<ColumnInfo> getTableColumn(int tableId) {
+    public Page<ColumnInfo> getTableColumn(GetColumnInput getColumnInput) {
         // 获得全部字段
-        List<ColumnInfo> columnInfoList = new ArrayList<>();
-        TableInfo tableInfo = tableInfoService.getById(tableId);
+        int tableId = getColumnInput.getTableId();
+        TableInfo tableInfo = tableInfoService.selectById(tableId);
         if (tableInfo != null) {
-            List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getColumnInfoList(tableInfo.getDatabaseName(), tableInfo.getTableName());
+            Page page = PageDTO.buildPage(getColumnInput);
+            List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getColumnInfoPage(page, tableInfo.getDatabaseName(), tableInfo.getTableName());
+            // 获得已构建的字段
+            List<BuiltTableInfo> builtColumnList = getBuiltTableColumn(getColumnInput.getTableId());
+            page.setRecords(getColumnHelper(allColumnList, builtColumnList));
+            return page;
+        }
+        return null;
+    }
+
+    /**
+     * 通过表id获得表的字段信息
+     *
+     * @param tableId 表对应的id {@link Integer}
+     * @return 表的字段信息 {@link List<ColumnInfo>}
+     */
+    @Override
+    public List<ColumnInfo> getAllTableColumn(int tableId) {
+
+        TableInfo tableInfo = tableInfoService.selectById(tableId);
+        if (tableInfo != null) {
+            List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getAllColumnInfoList(tableInfo.getDatabaseName(), tableInfo.getTableName());
             // 获得已构建的字段
             List<BuiltTableInfo> builtColumnList = getBuiltTableColumn(tableId);
-            if (builtColumnList != null) {
-                // 获得未构建的字段
-                for (BuiltTableInfo list : builtColumnList
-                ) {
-                    allColumnList.removeIf(it -> it.getColumnName().equals(list.getColumnName()));
-                }
-
-                for (BuiltTableInfo builtTableInfo : builtColumnList
-                ) {
-                    columnInfoList.add(new ColumnInfo(
-                            builtTableInfo.getColumnName(),
-                            builtTableInfo.getColumnType(),
-                            builtTableInfo.getColumnInfo(), true)
-                    );
-                }
-            }
-            for (BuiltTableInfo builtTableInfo : allColumnList
-            ) {
-                columnInfoList.add(new ColumnInfo(
-                        builtTableInfo.getColumnName(),
-                        builtTableInfo.getColumnType(),
-                        builtTableInfo.getColumnInfo(), false)
-                );
-            }
-            return columnInfoList;
+            return getColumnHelper(allColumnList, builtColumnList);
         }
         return new ArrayList<>();
     }
 
+    /**
+     * 获得已经构建或者已经保存的表
+     *
+     * @param getTableInput 输入 {@link GetTableInput}
+     * @return 已经构建或者已经保存的表 {@link Page<TableInfo>}
+     */
     @Override
-    public List<TableInfo> getBuiltOrSavedTable() {
-        QueryWrapper<TableInfo> tableInfoQueryWrapper = new QueryWrapper<>();
-        tableInfoQueryWrapper.eq("saved", true);
-        return tableInfoService.list(tableInfoQueryWrapper);
+    public Page<TableInfo> getTableWithSavedStatus(GetTableInput getTableInput) {
+        EntityWrapper<TableInfo> tableInfoQueryWrapper = new EntityWrapper<>();
+        Page page = PageDTO.buildPage(getTableInput);
+        tableInfoQueryWrapper.eq("saved", getTableInput.isSaved());
+        if (getTableInput.getKey() != null) {
+            tableInfoQueryWrapper.like("table_name", getTableInput.getKey()).or().like("database_name", getTableInput.getKey());
+        }
+        List<TableInfo> tableInfoList = tableInfoMapper.selectPage(page, tableInfoQueryWrapper);
+        page = page.setRecords(tableInfoList);
+        return page;
     }
 
     /**
      * 删除需要生成表的操作
      *
-     * @param tableIdList 表对应的字段
-     * @return 是否删除成功
+     * @param tableIdList 表对应的字段 {@link List<Integer>}
+     * @return 是否删除成功的相关信息 {@link SolrResult}
      */
     @Override
-    public boolean deleteBuiltOrSavedTable(List<Integer> tableIdList) {
+    public SolrResult deleteBuiltOrSavedTable(List<Integer> tableIdList) {
         boolean response = true;
         for (int tableId : tableIdList
         ) {
-            TableInfo tableInfo = tableInfoService.getById(tableId);
+            TableInfo tableInfo = tableInfoService.selectById(tableId);
             if (tableInfo != null) {
                 tableInfo.setBuild(false);
                 tableInfo.setSaved(false);
-                tableInfoService.saveOrUpdate(tableInfo);
-                QueryWrapper<BuiltTableInfo> builtTableInfoQueryWrapper = new QueryWrapper<>();
+                tableInfoService.insertOrUpdate(tableInfo);
+                EntityWrapper<BuiltTableInfo> builtTableInfoQueryWrapper = new EntityWrapper<>();
                 builtTableInfoQueryWrapper
                         .eq("database_name", tableInfo.getDatabaseName())
                         .eq("table_name", tableInfo.getTableName());
-                response = builtTableInfoService.remove(builtTableInfoQueryWrapper);
-            } else {
-                response = false;
+                response = builtTableInfoService.delete(builtTableInfoQueryWrapper);
             }
         }
-        return response;
+        if (!response) {
+            return new SolrResult(false, "部分删除成功");
+        } else {
+            return new SolrResult(true, "删除成功");
+        }
     }
 
     /**
-     * 通过关键词查询TableInfo
+     * 表对应的id获得对应的表已生成的字段
      *
-     * @param key 搜索关键词
-     * @return 查询到的
+     * @param tableId 表对应的id {@link Integer}
+     * @return 返回对应的表已生成的字段 {@link List<BuiltTableInfo>}
      */
-    @Override
-    public List<TableInfo> searchTableInfo(String key) {
-        QueryWrapper<TableInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("table_name", key).or().like("database_name",key);
-        return tableInfoService.list(queryWrapper);
-    }
-
-
     public List<BuiltTableInfo> getBuiltTableColumn(int tableId) {
-        TableInfo tableInfo = tableInfoService.getById(tableId);
-        QueryWrapper<BuiltTableInfo> builtTableInfoQueryWrapper = new QueryWrapper<>();
+        TableInfo tableInfo = tableInfoService.selectById(tableId);
+        EntityWrapper<BuiltTableInfo> builtTableInfoQueryWrapper = new EntityWrapper<>();
         builtTableInfoQueryWrapper
                 .eq("database_name", tableInfo.getDatabaseName())
                 .eq("table_name", tableInfo.getTableName());
-        return builtTableInfoService.list(builtTableInfoQueryWrapper);
+        return builtTableInfoService.selectList(builtTableInfoQueryWrapper);
+    }
+
+
+    /**
+     * 获得已经标注了是否已经构建的字段信息
+     *
+     * @param allColumnList   全部字段 {@link List<BuiltTableInfo>}
+     * @param builtColumnList 已经构建的字段{@link List<BuiltTableInfo>}
+     * @return 标注好是否已经构建的字段信息 {@link List<ColumnInfo>}
+     */
+    private List<ColumnInfo> getColumnHelper(List<BuiltTableInfo> allColumnList, List<BuiltTableInfo> builtColumnList) {
+        List<ColumnInfo> columnInfoList = new ArrayList<>();
+        if (builtColumnList != null) {
+            for (BuiltTableInfo allColumn : allColumnList
+            ) {
+                boolean flag = false;
+                for (BuiltTableInfo builtColumn : builtColumnList
+                ) {
+                    if (allColumn.getColumnName().equals(builtColumn.getColumnName())) {
+                        columnInfoList.add(new ColumnInfo(allColumn.getColumnName(), allColumn.getColumnType(), allColumn.getColumnInfo(), true));
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    columnInfoList.add(new ColumnInfo(allColumn.getColumnName(), allColumn.getColumnType(), allColumn.getColumnInfo(), false));
+                }
+            }
+        }
+        return columnInfoList;
     }
 }

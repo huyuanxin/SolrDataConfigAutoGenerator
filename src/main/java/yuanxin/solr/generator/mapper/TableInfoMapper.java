@@ -1,8 +1,12 @@
 package yuanxin.solr.generator.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import yuanxin.solr.generator.entity.TableInfo;
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+
 import org.springframework.stereotype.Repository;
+import yuanxin.solr.generator.entity.TableInfo;
+
+import java.util.List;
 
 
 /**
@@ -16,4 +20,11 @@ public interface TableInfoMapper extends BaseMapper<TableInfo> {
      * @return 是否成功
      */
     int initTableBuild();
+
+    /**
+     * 获得已构建的表id
+     *
+     * @return 表id
+     */
+    List<Integer> getBuiltTableId();
 }

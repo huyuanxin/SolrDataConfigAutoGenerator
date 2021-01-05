@@ -23,6 +23,6 @@ public class SaveInput {
     /**
      * 字段信息
      */
-    @ApiModelProperty(value = "字段信息")
+    @ApiModelProperty(value = "表的字段信息")
     private List<String> columnInfoList;
 }
