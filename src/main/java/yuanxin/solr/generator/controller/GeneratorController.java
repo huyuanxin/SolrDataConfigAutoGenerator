@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Api(tags = "solr-auto-generator", description = "Solr自动生成")
 @RestController
-@RequestMapping("/xboot/solr/")
+@RequestMapping("/solr/")
 public class GeneratorController {
     final DatabaseService databaseService;
     final GeneratorService generatorService;
