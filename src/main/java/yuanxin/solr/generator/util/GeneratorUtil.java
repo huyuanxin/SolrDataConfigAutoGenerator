@@ -189,4 +189,21 @@ public class GeneratorUtil {
         }
         throw new FileNotFoundException("文件创建失败");
     }
+
+    /**
+     * {@link List} 去重
+     *
+     * @param <T>  List的类型
+     * @param list 需要去重的 {@link List}
+     * @return 去重后的 {@link List}
+     */
+    public <T> List<T> removeDuplicate(List<T> list) {
+        List<T> tempList = new ArrayList<>();
+        for (T obj : list) {
+            if (!tempList.contains(obj)) {
+                tempList.add(obj);
+            }
+        }
+        return tempList;
+    }
 }

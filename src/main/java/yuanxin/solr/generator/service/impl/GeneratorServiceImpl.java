@@ -69,7 +69,7 @@ public class GeneratorServiceImpl implements GeneratorService {
             ) {
                 dataSourceList.add(generatorUtil.tableInfoToDataSource(tableInfo));
             }
-            return dataSourceList;
+            return generatorUtil.removeDuplicate(dataSourceList);
         }
         return new ArrayList<>();
     }
@@ -99,7 +99,7 @@ public class GeneratorServiceImpl implements GeneratorService {
                     entityList.add(entity);
                 }
             }
-            return entityList;
+            return generatorUtil.removeDuplicate(entityList);
         }
         return new ArrayList<>();
     }
@@ -129,7 +129,7 @@ public class GeneratorServiceImpl implements GeneratorService {
                 }
             }
         }
-        return fieldList;
+        return generatorUtil.removeDuplicate(fieldList);
     }
 
     /**
