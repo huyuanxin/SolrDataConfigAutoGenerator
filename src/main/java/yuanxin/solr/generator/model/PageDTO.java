@@ -20,14 +20,14 @@ public class PageDTO implements Serializable {
     @ApiModelProperty(value = "页大小")
     private Integer size;
 
-    public static Page buildPage(PageDTO dto) {
+    public static <T>Page<T> buildPage(PageDTO dto) {
         if (dto == null) {
-            return new Page(RowBounds.NO_ROW_OFFSET, RowBounds.NO_ROW_LIMIT);
+            return new Page<>(RowBounds.NO_ROW_OFFSET, RowBounds.NO_ROW_LIMIT);
         }
         Integer dtoCurrent = dto.getCurrent();
         Integer dtoSize = dto.getSize();
         int current = dtoCurrent == null ? 1 : dtoCurrent;
         int size = dtoSize == null || dtoSize == 0 ? 10 : dtoSize;
-        return new Page(current, size);
+        return new Page<>(current, size);
     }
 }
