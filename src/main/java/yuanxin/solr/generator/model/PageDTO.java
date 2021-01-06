@@ -15,12 +15,26 @@ import java.io.Serializable;
 @Data
 public class PageDTO implements Serializable {
 
+    /**
+     * 当前页
+     */
     @ApiModelProperty(value = "当前页")
     private Integer current;
+
+    /**
+     * 页大小
+     */
     @ApiModelProperty(value = "页大小")
     private Integer size;
 
-    public static <T>Page<T> buildPage(PageDTO dto) {
+    /**
+     * 构造 {@link Page}
+     *
+     * @param dto dto
+     * @param <T> {@link Page}的类型
+     * @return 构造的 {@link Page}
+     */
+    public static <T> Page<T> buildPage(PageDTO dto) {
         if (dto == null) {
             return new Page<>(RowBounds.NO_ROW_OFFSET, RowBounds.NO_ROW_LIMIT);
         }
