@@ -11,8 +11,8 @@ import java.io.Serializable;
 /**
  * @author huyuanxin
  */
-@ApiModel(description = "分页DTO")
 @Data
+@ApiModel(description = "分页DTO")
 public class PageDTO implements Serializable {
 
     /**
