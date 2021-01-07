@@ -34,6 +34,9 @@ public class GeneratorServiceImpl implements GeneratorService {
     final String DATABASE_TYPE_DATETIME = "datetime";
     final String DATABASE_TYPE_DATETIME2 = "datetime2";
     final String DATABASE_TYPE_TIME = "time";
+    final String DATABASE_TYPE_YEAR = "year";
+    final String DATABASE_TYPE_DATE = "date";
+    final String DATABASE_TYPE_TIMESTAMP = "timestamp";
     final String TemplateName = "data-config";
     final String DATA_CONFIG_DEFAULT_NAME = "data-config.xml";
     final String dataSourceInThymeleaf = "dataSourceList";
@@ -119,9 +122,12 @@ public class GeneratorServiceImpl implements GeneratorService {
         for (BuiltTableInfo buildTableInfo : builtTableInfoList
         ) {
             switch (buildTableInfo.getColumnName()) {
+                case DATABASE_TYPE_DATE:
+                case DATABASE_TYPE_TIME:
+                case DATABASE_TYPE_YEAR:
                 case DATABASE_TYPE_DATETIME:
-                case DATABASE_TYPE_DATETIME2:
-                case DATABASE_TYPE_TIME: {
+                case DATABASE_TYPE_TIMESTAMP:
+                case DATABASE_TYPE_DATETIME2: {
                     fieldList.add(new Field(buildTableInfo.getColumnName(), DynamicFIELD_DATE_TYPE_NAME + buildTableInfo.getColumnName()));
                     break;
                 }
