@@ -230,6 +230,20 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     /**
+     * 返回表数量 {@link Integer}
+     *
+     * @return 数量 {@link CountTableResult}
+     */
+    @Override
+    public CountTableResult countTable() {
+        EntityWrapper<TableInfo> buildQueryWrapper = new EntityWrapper<>();
+        EntityWrapper<TableInfo> notBuildQueryWrapper = new EntityWrapper<>();
+        buildQueryWrapper.eq("build", true).eq("saved", true);
+        notBuildQueryWrapper.eq("build", false).eq("saved", true);
+        return new CountTableResult(tableInfoMapper.selectCount(buildQueryWrapper), tableInfoMapper.selectCount(notBuildQueryWrapper));
+    }
+
+    /**
      * 表对应的id获得对应的表已生成的字段
      *
      * @param tableId 表对应的id {@link Integer}

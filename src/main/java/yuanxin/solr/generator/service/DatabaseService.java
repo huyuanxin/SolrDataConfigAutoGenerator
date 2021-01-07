@@ -79,4 +79,11 @@ public interface DatabaseService {
      * @return 是否删除成功的相关信息 {@link SolrResult}
      */
     SolrResult deleteBuiltOrSavedTable(List<Integer> tableIdList);
+
+    /**
+     * 返回表数量 {@link Integer}
+     *
+     * @return 数量 {@link CountTableResult}
+     */
+    CountTableResult countTable();
 }

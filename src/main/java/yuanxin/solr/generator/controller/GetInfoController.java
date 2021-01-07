@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import yuanxin.solr.generator.entity.TableInfo;
 import yuanxin.solr.generator.model.ColumnInfo;
+import yuanxin.solr.generator.model.CountTableResult;
 import yuanxin.solr.generator.model.GetTableInput;
 import yuanxin.solr.generator.service.DatabaseService;
 
@@ -50,5 +51,11 @@ public class GetInfoController {
             @RequestBody GetTableInput getTableInput
     ) {
         return databaseService.getTableWithSavedStatus(getTableInput);
+    }
+
+    @GetMapping("/getTableNumber")
+    @ApiOperation(value = "计算表数量")
+    public CountTableResult getTableNumber() {
+        return databaseService.countTable();
     }
 }
