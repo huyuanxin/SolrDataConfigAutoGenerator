@@ -32,6 +32,7 @@ public class GeneratorServiceImpl implements GeneratorService {
     final String DynamicFIELD_DATE_TYPE_NAME = "yuanxin_pdate_";
     final String DynamicFIELD_STRING_TYPE_NAME = "yuanxin_string_";
     final String DATABASE_TYPE_DATETIME = "datetime";
+    final String DATABASE_TYPE_DATETIME2 = "datetime2";
     final String DATABASE_TYPE_TIME = "time";
     final String TemplateName = "data-config";
     final String DATA_CONFIG_DEFAULT_NAME = "data-config.xml";
@@ -119,6 +120,7 @@ public class GeneratorServiceImpl implements GeneratorService {
         ) {
             switch (buildTableInfo.getColumnName()) {
                 case DATABASE_TYPE_DATETIME:
+                case DATABASE_TYPE_DATETIME2:
                 case DATABASE_TYPE_TIME: {
                     fieldList.add(new Field(buildTableInfo.getColumnName(), DynamicFIELD_DATE_TYPE_NAME + buildTableInfo.getColumnName()));
                     break;
@@ -146,9 +148,11 @@ public class GeneratorServiceImpl implements GeneratorService {
             List<DataSource> dataSourceList = generatorDataSource(tableIdList);
             List<Entity> entityList = generatorEntity(tableIdList);
             if (dataSourceList == null || dataSourceList.size() == 0) {
+                generatorUtil.newFileWriter(fileLocation + DATA_CONFIG_DEFAULT_NAME);
                 return new SolrResult(false, "生成失败,dataSource是空的");
             }
             if (entityList == null || entityList.size() == 0) {
+                generatorUtil.newFileWriter(fileLocation + DATA_CONFIG_DEFAULT_NAME);
                 return new SolrResult(false, "生成失败,entity是空的");
             }
             Context context = new Context();
