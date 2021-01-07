@@ -29,19 +29,69 @@ import java.util.List;
  */
 @Service
 public class GeneratorServiceImpl implements GeneratorService {
+    /**
+     * Solr内 {@link java.sql.Date} 的动态字段
+     */
     final String DynamicFIELD_DATE_TYPE_NAME = "yuanxin_pdate_";
+
+    /**
+     * Solr内 {@link String} 的动态字段
+     */
     final String DynamicFIELD_STRING_TYPE_NAME = "yuanxin_string_";
+
+    /**
+     * 对应数据库内的datetime
+     */
     final String DATABASE_TYPE_DATETIME = "datetime";
+
+    /**
+     * 对应数据库内的datetime2
+     */
     final String DATABASE_TYPE_DATETIME2 = "datetime2";
+
+    /**
+     * 对应数据库内的time
+     */
     final String DATABASE_TYPE_TIME = "time";
+
+    /**
+     * 对应数据库内的year
+     */
     final String DATABASE_TYPE_YEAR = "year";
+
+    /**
+     * 对应数据库内的date
+     */
     final String DATABASE_TYPE_DATE = "date";
+
+    /**
+     * 对应数据库内的timestamp
+     */
     final String DATABASE_TYPE_TIMESTAMP = "timestamp";
+
+    /**
+     * 生成使用的模板引擎的名字
+     */
     final String TemplateName = "data-config";
+
+    /**
+     * 生成文件的名字
+     */
     final String DATA_CONFIG_DEFAULT_NAME = "data-config.xml";
+
+    /**
+     * 模板引擎内的内容
+     */
     final String dataSourceInThymeleaf = "dataSourceList";
+
+    /**
+     * 模板引擎内的内容
+     */
     final String entityListInThymeleaf = "entityList";
 
+    /**
+     * 文件生成的位置
+     */
     @Value("${data-config.generator.location}")
     private String fileLocation;
 
@@ -99,7 +149,8 @@ public class GeneratorServiceImpl implements GeneratorService {
                             generatorUtil.generatorQuerySqlCommand(builtTableInfo),
                             generatorUtil.generatorDeltaImportCommand(builtTableInfo),
                             generatorUtil.generatorDeltaQuerySqlCommand(builtTableInfo),
-                            generatorField(builtTableInfo));
+                            generatorField(builtTableInfo)
+                    );
                     entityList.add(entity);
                 }
             }
@@ -128,11 +179,21 @@ public class GeneratorServiceImpl implements GeneratorService {
                 case DATABASE_TYPE_DATETIME:
                 case DATABASE_TYPE_TIMESTAMP:
                 case DATABASE_TYPE_DATETIME2: {
-                    fieldList.add(new Field(buildTableInfo.getColumnName(), DynamicFIELD_DATE_TYPE_NAME + buildTableInfo.getColumnName()));
+                    fieldList.add(
+                            new Field(
+                                    buildTableInfo.getColumnName(),
+                                    DynamicFIELD_DATE_TYPE_NAME + buildTableInfo.getColumnName()
+                            )
+                    );
                     break;
                 }
                 default: {
-                    fieldList.add(new Field(buildTableInfo.getColumnName(), DynamicFIELD_STRING_TYPE_NAME + buildTableInfo.getColumnName()));
+                    fieldList.add(
+                            new Field(
+                                    buildTableInfo.getColumnName(),
+                                    DynamicFIELD_STRING_TYPE_NAME + buildTableInfo.getColumnName()
+                            )
+                    );
                     break;
                 }
             }
