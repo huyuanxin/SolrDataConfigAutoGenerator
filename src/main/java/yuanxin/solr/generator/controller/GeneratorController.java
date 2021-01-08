@@ -38,8 +38,12 @@ public class GeneratorController {
     ) {
         SolrResult response = generatorService.generator(tableIdList);
         if (response.getResult()) {
-            databaseService.initTableBuild();
-            databaseService.updateTableInfoBuiltStatus(tableIdList, true);
+            if (!databaseService.initTableBuild()) {
+                return new SolrResult(false, "重置生成表构建状态失败，请联系管理员");
+            }
+            if (!databaseService.updateTableInfoBuiltStatus(tableIdList, true)) {
+                return new SolrResult(false, "设置生成状态失败，请联系管理员");
+            }
         }
         return response;
     }

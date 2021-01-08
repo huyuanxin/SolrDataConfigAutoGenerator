@@ -133,32 +133,12 @@ public class DatabaseServiceImpl implements DatabaseService {
                 );
             }
             boolean response = builtTableInfoService.insertBatch(saveList);
-            updateTableInfoSavedStatus(tableId, true);
+            if (!updateTableInfoSavedStatus(tableId, true)) {
+                return new SolrResult(false, "设置生成表保存状态失败，请联系管理员");
+            }
             return new SolrResult(response, "保存成功");
         }
         return new SolrResult(false, "保存成功");
-    }
-
-    /**
-     * 通过表id获得表的字段信息
-     *
-     * @param getColumnInput 表对应的id {@link GetColumnInput}
-     * @return 表的字段信息 {@link List<ColumnInfo>}
-     */
-    @Override
-    public Page<ColumnInfo> getTableColumn(GetColumnInput getColumnInput) {
-        // 获得全部字段
-        int tableId = getColumnInput.getTableId();
-        TableInfo tableInfo = tableInfoService.selectById(tableId);
-        if (tableInfo != null) {
-            Page<ColumnInfo> page = PageDTO.buildPage(getColumnInput);
-            List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getColumnInfoPage(page, tableInfo.getDatabaseName(), tableInfo.getTableName());
-            // 获得已构建的字段
-            List<BuiltTableInfo> builtColumnList = getBuiltTableColumn(getColumnInput.getTableId());
-            page.setRecords(getColumnHelper(allColumnList, builtColumnList));
-            return page;
-        }
-        return null;
     }
 
     /**

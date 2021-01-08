@@ -29,14 +29,6 @@ public class GetInfoController {
         this.databaseService = databaseService;
     }
 
-//    @PostMapping("/getColumnInfoPage")
-//    @ApiOperation(value = "获得表的字段信息,带分页")
-//    public Page<ColumnInfo> getColumnInfo(
-//            @RequestBody GetColumnInput getColumnInput
-//    ) {
-//        return databaseService.getTableColumn(getColumnInput);
-//    }
-
     @PostMapping("/getColumnInfoList/{tableId}")
     @ApiOperation(value = "获得表的字段信息")
     public List<ColumnInfo> getAllColumnInfo(

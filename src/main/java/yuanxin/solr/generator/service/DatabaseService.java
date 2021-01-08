@@ -51,14 +51,6 @@ public interface DatabaseService {
     /**
      * 通过表id获得表的字段信息
      *
-     * @param getColumnInput 表对应的id {@link GetColumnInput}
-     * @return 表的字段信息 {@link List<ColumnInfo>}
-     */
-    Page<ColumnInfo> getTableColumn(GetColumnInput getColumnInput);
-
-    /**
-     * 通过表id获得表的字段信息
-     *
      * @param tableId 表对应的id {@link Integer}
      * @return 表的字段信息 {@link List<ColumnInfo>}
      */
