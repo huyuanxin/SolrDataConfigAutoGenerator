@@ -21,6 +21,12 @@ public class GetTableInput extends PageDTO {
     private boolean saved;
 
     /**
+     * 是否保存
+     */
+    @ApiModelProperty("是否被构建,true为已构建的,false为未构建的")
+    private boolean build;
+
+    /**
      * 查询关键词
      */
     @ApiModelProperty("搜索关键词,不发送则为查询全部")

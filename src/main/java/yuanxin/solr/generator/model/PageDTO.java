@@ -41,7 +41,7 @@ public class PageDTO implements Serializable {
         Integer dtoCurrent = dto.getCurrent();
         Integer dtoSize = dto.getSize();
         int current = dtoCurrent == null ? 1 : dtoCurrent;
-        int size = dtoSize == null || dtoSize == 0 ? 10 : dtoSize;
+        int size = dtoSize == null || dtoSize <= 0 ? 10 : dtoSize;
         return new Page<>(current, size);
     }
 }

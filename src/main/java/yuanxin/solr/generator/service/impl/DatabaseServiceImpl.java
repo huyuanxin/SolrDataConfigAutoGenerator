@@ -151,7 +151,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         int tableId = getColumnInput.getTableId();
         TableInfo tableInfo = tableInfoService.selectById(tableId);
         if (tableInfo != null) {
-            Page page = PageDTO.buildPage(getColumnInput);
+            Page<ColumnInfo> page = PageDTO.buildPage(getColumnInput);
             List<BuiltTableInfo> allColumnList = builtTableInfoMapper.getColumnInfoPage(page, tableInfo.getDatabaseName(), tableInfo.getTableName());
             // 获得已构建的字段
             List<BuiltTableInfo> builtColumnList = getBuiltTableColumn(getColumnInput.getTableId());
@@ -189,8 +189,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public Page<TableInfo> getTableWithSavedStatus(GetTableInput getTableInput) {
         EntityWrapper<TableInfo> tableInfoQueryWrapper = new EntityWrapper<>();
-        Page page = PageDTO.buildPage(getTableInput);
-        tableInfoQueryWrapper.eq("saved", getTableInput.isSaved());
+        Page<TableInfo> page = PageDTO.buildPage(getTableInput);
+        tableInfoQueryWrapper
+                .eq("saved", getTableInput.isSaved())
+                .eq("build", getTableInput.isBuild());
         if (getTableInput.getKey() != null) {
             tableInfoQueryWrapper.like("table_name", getTableInput.getKey()).or().like("database_name", getTableInput.getKey());
         }
